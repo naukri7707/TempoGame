@@ -1,18 +1,25 @@
-﻿using System.Collections;
+﻿using Mono.Data.Sqlite;
+using Naukri.OsuAnalysis;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private SpawnManager spawnManager;
+
     public static float Speed { get; } = 8f;
-
-    [SerializeField] private static GameObject _trigger;
-
-    public static GameObject Trigger { get; set; }
-
+    SqliteManager db;
+    public OsuAnalysis analysis;
     private void Awake()
     {
-        Trigger = _trigger;
+        analysis = new OsuAnalysis($@"{Application.streamingAssetsPath}/Songs/Shoukaihan/Orangestar feat.IA - Asu no Yozora Shoukaihan (dakemoto) [Normal].osu");
+        Debug.Log(analysis.Difficulty.CircleSize);
+    }
+
+    private void Start()
+    {
+
     }
 
     void Update()
