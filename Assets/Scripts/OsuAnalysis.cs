@@ -373,27 +373,140 @@ namespace Naukri.OsuAnalysis
 
     public class Events
     {
-        //TODO :/
+        public Events(StreamReader sr)
+        {
+            string line;
+            while ((line = sr.ReadLine()) != null)
+            {
+                if (line[0].Equals('/') && line[1].Equals('/'))
+                {
+                    continue;
+                }
+                string[] backdata = line.Split(',');
+                if (backdata.Length < 5)
+                {
+                    break;
+                }
+
+                Video = int.Parse(backdata[0]);
+                StartTime = int.Parse(backdata[1]);
+                Filename = backdata[2];
+                Offset = new Vector2(int.Parse(backdata[3]), int.Parse(backdata[4]));
+            }
+        }
+        /// <summary>
+        /// 背景類型 0 = 圖 1 = 影片
+        /// </summary>
+        public int Video { get; set; }
+
+        /// <summary>
+        /// 開始時間
+        /// </summary>
+        public int StartTime { get; set; }
+
+        /// <summary>
+        /// 檔案名稱
+        /// </summary>
+        public string Filename { get; set; }
+
+        /// <summary>
+        /// 背景偏移量
+        /// </summary>
+        public Vector2 Offset { get; set; }
     }
 
     public class TimingPoints
     {
+        public TimingPoints(StreamReader sr)
+        {
+            var pts = new List<TimingPoint>();
+            string line;
+            while ((line = sr.ReadLine()) != null)
+            {
+                if (line[0].Equals('/') && line[1].Equals('/'))
+                {
+                    continue;
+                }
+                string[] backdata = line.Split(',');
+                if (backdata.Length < 8)
+                {
+                    break;
+                }
+                var pt = new TimingPoint();
+                pt.Time = int.Parse(backdata[0]);
+                pt.BeatLength = decimal.Parse(backdata[1]);
+                pt.Meter = int.Parse(backdata[2]);
+                pt.SampleSet = int.Parse(backdata[3]);
+                pt.SampleIndex = int.Parse(backdata[4]);
+                pt.Volume = int.Parse(backdata[5]);
+                pt.Uninherited = int.Parse(backdata[6]);
+                pt.Effects = int.Parse(backdata[7]);
+                pts.Add(pt);
+            }
+            mCollection = pts.ToArray();
+        }
 
+        public TimingPoint this[int index]
+        {
+            get
+            {
+                return mCollection[index];
+            }
+        }
+
+        private readonly TimingPoint[] mCollection;
+
+        public struct TimingPoint
+        {
+            public int Time { get; set; }
+
+            public decimal BeatLength { get; set; }
+
+            public int Meter { get; set; }
+
+            public int SampleSet { get; set; }
+
+            public int SampleIndex { get; set; }
+
+            public int Volume { get; set; }
+
+            public int Uninherited { get; set; }
+
+            public int Effects { get; set; }
+        }
     }
 
     public class Colours
     {
-
+        // ???
     }
 
-    public struct Background
+
+    public class HitObjects
     {
+        public struct HitObject
+        {
+            public int X { get; set; }
 
-    }
+            public int Y { get; set; }
 
-    public struct HitObject
-    {
+            public int Time { get; set; }
 
+            public int Type { get; set; }
+
+            public int HitSound { get; set; }
+
+            public ObjectParam ObjectParams { get; set; }
+
+            public struct ObjectParam
+            {
+                public int NormalSet { get; set; }
+                public int AdditionSet { get; set; }
+                public int Index { get; set; }
+                public int Volume { get; set; }
+                public string Filename { get; set; }
+            }
+        }
     }
 
     public class OsuAnalysis
@@ -419,18 +532,19 @@ namespace Naukri.OsuAnalysis
                         case "[Difficulty]":
                             Difficulty = new Difficulty(sr);
                             break;
-                        //case "[Events]":
-                        //    Events = new Events(sr);
-                        //    break;
-                        //case "[Timing Points]":
-                        //    TimingPoints = new TimingPoints(sr);
-                        //    break;
-                        //case "[Colours]":
-                        //    Colours = new Colours(sr);
-                        //    break;
-                        //case "[Hit Objects]":
-                        //    HitObjects = new HitObjects(sr);
-                        //    break;
+                        case "[Events]":
+                            Events = new Events(sr);
+                            TimingPoints a;
+                            break;
+                            //case "[Timing Points]":
+                            //    TimingPoints = new TimingPoints(sr);
+                            //    break;
+                            //case "[Colours]":
+                            //    Colours = new Colours(sr);
+                            //    break;
+                            //case "[Hit Objects]":
+                            //    HitObjects = new HitObjects(sr);
+                            //    break;
                     }
                 }
             }
@@ -449,6 +563,6 @@ namespace Naukri.OsuAnalysis
 
         public readonly Colours Colours;
 
-        public readonly List<HitObject> HitObjects;
+        public readonly HitObjects HitObjects;
     }
 }
