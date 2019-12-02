@@ -18,7 +18,6 @@ public class TriggerBehaviour : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        Debug.Log("Stay");
         if (collision.gameObject.CompareTag(NOTETAG))
         {
             if (Input.GetKeyDown(collision.gameObject.GetComponent<NoteBehaviour>().CorrespondButton))

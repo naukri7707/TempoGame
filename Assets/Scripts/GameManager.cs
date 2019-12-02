@@ -10,11 +10,11 @@ public class GameManager : MonoBehaviour
 
     public static float Speed { get; } = 8f;
     SqliteManager db;
-    public OsuAnalysis analysis;
+    public Song analysis;
     private void Awake()
     {
-        analysis = new OsuAnalysis($@"{Application.streamingAssetsPath}/Songs/Shoukaihan/Orangestar feat.IA - Asu no Yozora Shoukaihan (dakemoto) [Normal].osu");
-        Debug.Log(analysis.Difficulty.CircleSize);
+        analysis = new Song($@"{Application.streamingAssetsPath}/Songs/Shoukaihan/Orangestar feat.IA - Asu no Yozora Shoukaihan (dakemoto) [Normal].osu");
+        var a = analysis.TimingPoints[0];
     }
 
     private void Start()
