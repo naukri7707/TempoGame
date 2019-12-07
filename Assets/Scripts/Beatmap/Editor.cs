@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Naukri.OsuAnalysis
+namespace Naukri.Beatmap
 {
     public class Editor
     {

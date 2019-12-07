@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Naukri.OsuAnalysis
+namespace Naukri.Beatmap
 {
     public class TimingPoints
     {

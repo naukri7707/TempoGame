@@ -297,13 +297,30 @@ namespace Mono.Data.Sqlite
         }
 
         /// <summary>
-        /// 查詢 所有欄位
+        /// 查詢 所有符合條件的欄位
         /// </summary>
         /// /// <param name="condition">條件</param>
         /// <returns>查詢結果</returns>
-        public SqliteDataReader SelectAll(string condition)
+        public SqliteDataReader SelectAllWhere(string condition)
         {
             return ExecuteReader($"SELECT * FROM {Table} WHERE {condition};");
+        }
+
+        /// <summary>
+        /// 查詢 所有欄位並排序
+        /// </summary>
+        /// <param name="fields">Key = 欄位, Value = 正序</param>
+        /// <returns>查詢結果</returns>
+        public SqliteDataReader SelectAllOrderBy(params KeyValuePair<string, bool>[] fields)
+        {
+            var query = new StringBuilder($"SELECT * FROM {Table} ORDER BY ");
+            foreach(var f in fields)
+            {
+                query.Append($"{f.Key} {(f.Value == true ? "ASC" : "DESC")},");
+            }
+            query.Length--;
+            query.Append(";");
+            return ExecuteReader(query.ToString());
         }
 
         #endregion

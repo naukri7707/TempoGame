@@ -4,7 +4,5 @@ using UnityEngine;
 
 public interface INote
 {
-    int Track { get; set; }
 
-    int TimeCode { get; set; }
 }

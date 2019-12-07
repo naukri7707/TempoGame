@@ -11,23 +11,23 @@ public class BeatmapTile : MonoBehaviour
     private readonly Color songFocusTileColor = new Color(0.656F, 1F, 0.511F, 0.725F);
 
     private readonly Vector3[] metaTilesInitPos = {
-        new Vector3(180,640),
-        new Vector3(170,560),
-        new Vector3(160,480),
-        new Vector3(150,400),
-        new Vector3(140,320),
-        new Vector3(130,240),
-        new Vector3(120,160),
-        new Vector3(110,80),
-        new Vector3(100,0),
-        new Vector3(110,-80),
-        new Vector3(120,-160),
-        new Vector3(130,-240),
-        new Vector3(140,-320),
-        new Vector3(150,-400),
-        new Vector3(160,-480),
-        new Vector3(170,-560),
-        new Vector3(180,-640)
+        new Vector3(180,660),
+        new Vector3(170,580),
+        new Vector3(160,500),
+        new Vector3(150,420),
+        new Vector3(140,340),
+        new Vector3(130,260),
+        new Vector3(120,180),
+        new Vector3(110,100),
+        new Vector3(80,0),
+        new Vector3(110,-100),
+        new Vector3(120,-180),
+        new Vector3(130,-260),
+        new Vector3(140,-340),
+        new Vector3(150,-420),
+        new Vector3(160,-500),
+        new Vector3(170,-580),
+        new Vector3(180,-660)
     };
 
     private float speed = 2.5F;

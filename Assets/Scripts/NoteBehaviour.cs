@@ -27,7 +27,7 @@ public class NoteBehaviour : MonoBehaviour, INote
     /// <summary>
     /// 時間碼
     /// </summary>
-    public int TimeCode { get => _timeCode; set => _timeCode = value; }
+    public int StartTime { get => _timeCode; set => _timeCode = value; }
 
     /// <summary>
     /// 對應按鈕

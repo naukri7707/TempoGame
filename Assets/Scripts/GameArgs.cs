@@ -1,14 +1,12 @@
-﻿
+﻿using Naukri.Beatmap;
+using System.IO;
+using UnityEngine;
+
 static class GameArgs
 {
-    /// <summary>
-    /// 主執行緒 ID
-    /// </summary>
-    private static int mainThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+    public static BeatmapTileData SelectedBeatmapTileData { get; set; }
 
-    /// <summary>
-    /// 判斷是否為主執行緒
-    /// </summary>
-    public static bool IsMainThread => System.Threading.Thread.CurrentThread.ManagedThreadId == mainThreadId;
+    public static string GameDataPath { get; } = Path.Combine(Application.streamingAssetsPath, "GameData.db");
 
+    public static string BeatmapList { get; } = "BeatmapList";
 }

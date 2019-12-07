@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Naukri.OsuAnalysis
+namespace Naukri.Beatmap
 {
     public class HitObjects
     {
+        public const int MIN_HOLDTIME = 30;
+
         public struct HitSample
         {
             public int NormalSet { get; set; }
@@ -30,10 +32,6 @@ namespace Naukri.OsuAnalysis
 
             public HitSample HitSample { get; set; }
         }
-
-        private readonly HitObject[] objects;
-
-        public const int MIN_HOLDTIME = 30;
 
         public HitObjects(StreamReader sr)
         {
@@ -87,12 +85,13 @@ namespace Naukri.OsuAnalysis
                     });
                 }
             }
-            objects = objs.ToArray();
+            Collection = objs.ToArray();
         }
 
-        public int Length => objects.Length;
 
-        public HitObject this[int index] => objects[index];
+        public HitObject[] Collection { get; }
+
+        public HitObject this[int index] => Collection[index];
 
 
     }

@@ -1,4 +1,4 @@
-﻿using Naukri.OsuAnalysis;
+﻿using Naukri.Beatmap;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -28,7 +28,7 @@ namespace Naukri.ExtensionMethods
         }
 
         /// <summary>
-        /// TODO TEST
+        /// 取得外部音效
         /// </summary>
         /// <param name="self"></param>
         /// <param name="path"></param>

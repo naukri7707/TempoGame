@@ -6,9 +6,6 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
-
-// TODO 保證路徑
-// TODO GameArgs
 public class BeatmapTileList : MonoBehaviour
 {
     public const int OffsetRange = 8;
@@ -27,7 +24,12 @@ public class BeatmapTileList : MonoBehaviour
     /// <summary>
     /// 音樂磚串列
     /// </summary>
-    public LinkedList<BeatmapTile> BeatmapTiles { get; set; } = new LinkedList<BeatmapTile>();
+    public static LinkedList<BeatmapTile> BeatmapTiles { get; private set; }
+
+    /// <summary>
+    /// 歌曲資料表
+    /// </summary>
+    public static List<BeatmapTileData> BeatmapTileDatas { get; private set; }
 
     /// <summary>
     /// 聚焦音樂磚
@@ -58,15 +60,14 @@ public class BeatmapTileList : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 歌曲資料表
-    /// </summary>
-    public List<BeatmapTileData> BeatmapTileDatas { get; } = new List<BeatmapTileData>();
+    public bool IsBeatmapTileListCreated { get; private set; } = false;
 
     private void Awake()
     {
+        BeatmapTiles = new LinkedList<BeatmapTile>();
+        BeatmapTileDatas = new List<BeatmapTileData>();
         // data
-        using (var gameData = new SqliteManager(Application.streamingAssetsPath, "GameData.db") { Table = "BeatmapList" })
+        using (var gameData = new SqliteManager(GameArgs.GameDataPath) { Table = GameArgs.BeatmapList })
         {
             gameData.CreateTable(
                 "BeatmapList",
@@ -83,7 +84,10 @@ public class BeatmapTileList : MonoBehaviour
                 new SQLiteField("MusicFile", SQLiteDataType.TEXT, SqlKeyWord.NOT_NULL),
                 new SQLiteField("OsuFile", SQLiteDataType.TEXT, SqlKeyWord.NOT_NULL)
                 );
-            using (var dr = gameData.SelectAll())
+            using (var dr = gameData.SelectAllOrderBy(
+                new KeyValuePair<string, bool>("BeatmapSetID", true),
+                new KeyValuePair<string, bool>("BeatmapID", true)
+                ))
             {
                 int beatmapCount = 0;
                 while (dr.Read())
@@ -121,18 +125,8 @@ public class BeatmapTileList : MonoBehaviour
         theard.Start();
         // 監聽解壓執行緒
         StartCoroutine(ShowLazyMessage(theard));
-        // Set Void MetaTile
-        CurrentBeatmapIndex = 0;
-        PlayCurrentMusic();
-        for (int i = -OffsetRange; i <= OffsetRange; i++)
-        {
-            BeatmapTiles.AddLast(InstantiateBeatmapTile(i));
-            if (i == 0)
-            {
-                FocusTile = BeatmapTiles.Last.Value;
-                background.sprite = FocusTile.Image.sprite;
-            }
-        }
+        // 產生圖譜表
+        CreateBeatmapTileList();
     }
 
     // Update is called once per frame
@@ -148,16 +142,41 @@ public class BeatmapTileList : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
+            SelectSong();
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
         }
     }
 
+    private void CreateBeatmapTileList()
+    {
+        if (BeatmapTileDatas.Count == 0 || IsBeatmapTileListCreated == true)
+        {
+            return;
+        }
+        CurrentBeatmapIndex = 0;
+        PlayCurrentMusic();
+        for (int i = -OffsetRange; i <= OffsetRange; i++)
+        {
+            BeatmapTiles.AddLast(InstantiateBeatmapTile(i));
+            if (i == 0)
+            {
+                FocusTile = BeatmapTiles.Last.Value;
+                background.sprite = FocusTile.Image.sprite;
+            }
+        }
+        IsBeatmapTileListCreated = true;
+    }
+
     private void ShiftUp()
     {
+        int prevBeatmapSet = BeatmapTileDatas[CurrentBeatmapIndex].BeatmapSetID;
         CurrentBeatmapIndex--;
-        PlayCurrentMusic();
+        if (BeatmapTileDatas[CurrentBeatmapIndex].BeatmapSetID != prevBeatmapSet)
+        {
+            PlayCurrentMusic();
+        }
         Destroy(BeatmapTiles.Last.Value.gameObject);
         BeatmapTiles.RemoveLast();
         foreach (var s in BeatmapTiles)
@@ -179,8 +198,12 @@ public class BeatmapTileList : MonoBehaviour
 
     private void ShiftDown()
     {
+        int prevBeatmapSet = BeatmapTileDatas[CurrentBeatmapIndex].BeatmapSetID;
         CurrentBeatmapIndex++;
-        PlayCurrentMusic();
+        if (BeatmapTileDatas[CurrentBeatmapIndex].BeatmapSetID != prevBeatmapSet)
+        {
+            PlayCurrentMusic();
+        }
         Destroy(BeatmapTiles.First.Value.gameObject);
         BeatmapTiles.RemoveFirst();
         foreach (var s in BeatmapTiles)
@@ -198,6 +221,11 @@ public class BeatmapTileList : MonoBehaviour
             }
         }
         BeatmapTiles.AddLast(InstantiateBeatmapTile(OffsetRange));
+    }
+
+    private void SelectSong()
+    {
+        LoadingScene.LoadScene(3);
     }
 
     private BeatmapTile InstantiateBeatmapTile(int offset)
@@ -247,7 +275,7 @@ public class BeatmapTileList : MonoBehaviour
         var newBeatmap = BeatmapManager.ExtractOszFromPackageFolder();
         if (newBeatmap > 0)
         {
-            MessageBox.ShowLazy($"解析完成，新增了{newBeatmap}張圖譜！");
+            MessageBox.ShowLazy($"解析完成，共新增了{newBeatmap}張圖譜！");
         }
     }
 
@@ -256,7 +284,12 @@ public class BeatmapTileList : MonoBehaviour
         // 當執行緒還在執行時，每秒監聽一次
         while (listen.IsAlive)
         {
-            yield return new WaitForSeconds(1);
+            yield return new WaitForFixedUpdate();
+            if (BeatmapTileDatas.Count > 0 && IsBeatmapTileListCreated == false)
+            {
+                MessageBox.Show($"發現資源正在重新載入...");
+                CreateBeatmapTileList();
+            }
             MessageBox.PushLazy();
         }
     }

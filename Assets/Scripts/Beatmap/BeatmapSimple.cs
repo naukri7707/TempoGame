@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace Naukri.OsuAnalysis
+namespace Naukri.Beatmap
 {
     public class BeatmapSimple
     {

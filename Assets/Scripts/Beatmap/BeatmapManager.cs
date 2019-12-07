@@ -1,5 +1,5 @@
 ﻿using Mono.Data.Sqlite;
-using Naukri.OsuAnalysis;
+using Naukri.Beatmap;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -46,10 +46,14 @@ public static class BeatmapManager
         var res = 0;
         var packageName = Path.GetFileNameWithoutExtension(path);
         var packagePath = Path.Combine(SongFolderPath, packageName);
+        // 修正 windows會忽略檔案末端 . 的問題
+        while (packagePath.EndsWith("."))
+        {
+            packagePath = packagePath.Remove(packagePath.Length - 1);
+        }
         if (!Directory.Exists(packagePath))
         {
             ZipFile.ExtractToDirectory(path, packagePath);
-
             var di = new DirectoryInfo(packagePath);
             foreach (var fi in di.GetFiles("*.osu"))
             {
@@ -59,13 +63,18 @@ public static class BeatmapManager
             if (res == 0)
             {
                 Directory.Delete(packagePath, true);
+                MessageBox.ShowLazy($"失敗！\"{packageName}\"沒有發現符合條件的圖譜", LogType.Error);
+            }
+            else
+            {
+                MessageBox.ShowLazy($"成功！從\"{packageName}\"解析出{res}張可用圖譜");
             }
             // 刪除 .osz 檔
             System.IO.File.Delete(path);
         }
         else
         {
-            MessageBox.ShowLazy($"圖譜\"{packageName}\"已存在，自動刪除Osz檔案");
+            MessageBox.ShowLazy($"失敗！\"{packageName}\"已存在", LogType.Error);
             Debug.LogError($"Folder Exists : {packagePath}");
         }
         return res;
@@ -103,7 +112,7 @@ public static class BeatmapManager
                             File.Delete(src);
                         }
                     }
-                    //
+                    // 新增至資料庫
                     songList.Insert(
                         beatmap.Metadata.BeatmapID,
                         beatmap.Metadata.BeatmapSetID,
@@ -118,6 +127,21 @@ public static class BeatmapManager
                         beatmap.General.AudioFilename,
                         Path.GetFileName(osuFilePath)
                         );
+                    // 新增至圖譜清單
+                    BeatmapTileList.BeatmapTileDatas.Add(new BeatmapTileData(
+                        beatmap.Metadata.BeatmapID,
+                        beatmap.Metadata.BeatmapSetID,
+                        beatmap.Metadata.Title,
+                        beatmap.Metadata.TitleUnicode,
+                        beatmap.Metadata.Artist,
+                        beatmap.Metadata.ArtistUnicode,
+                        beatmap.Metadata.Creator,
+                        beatmap.Metadata.Version,
+                        packageName,
+                        beatmap.Events.Filename,
+                        beatmap.General.AudioFilename,
+                        Path.GetFileName(osuFilePath)
+                        ));
                     return 1;
                 }
             }
