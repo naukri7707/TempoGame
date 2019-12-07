@@ -6,9 +6,7 @@ using UnityEngine.UI;
 
 public class BeatmapTile : MonoBehaviour
 {
-    private readonly Color songTileColor = new Color(0.511F, 0.556F, 1F, 0.725F);
-
-    private readonly Color songFocusTileColor = new Color(0.656F, 1F, 0.511F, 0.725F);
+    private const float alpha = 0.725F;
 
     private readonly Vector3[] metaTilesInitPos = {
         new Vector3(180,660),
@@ -70,19 +68,11 @@ public class BeatmapTile : MonoBehaviour
     public void SetInfo(int offset, BeatmapTileData beatmap)
     {
         Offset = offset;
-        SetColor(offset == 0);
+        Random.InitState(beatmap.BeatmapSetID);
+        selfImage.color = new Color(Random.Range(0.5F,1), Random.Range(0.5F, 1), Random.Range(0.5F, 1), alpha);
         rectTransform.anchoredPosition = TargetPosition;
         Image.GetExternalSprite(beatmap.BackgroundPath);
         Title.text = $"{(beatmap.TitleUnicode == "" ? beatmap.Title : beatmap.TitleUnicode)} - {beatmap.Version}";
         Artist.text = $"{(beatmap.ArtistUnicode == "" ? beatmap.Artist : beatmap.ArtistUnicode)} // {beatmap.Creator}";
-    }
-
-    /// <summary>
-    /// 設定音樂磚背景色
-    /// </summary>
-    /// <param name="isFocus">是否為聚焦項</param>
-    public void SetColor(bool isFocus)
-    {
-        selfImage.color = isFocus ? songFocusTileColor : songTileColor;
     }
 }

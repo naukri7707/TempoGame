@@ -32,11 +32,6 @@ public class BeatmapTileList : MonoBehaviour
     public static List<BeatmapTileData> BeatmapTileDatas { get; private set; }
 
     /// <summary>
-    /// 聚焦音樂磚
-    /// </summary>
-    public static BeatmapTile FocusTile { get; set; }
-
-    /// <summary>
     /// 當前歌曲包 (中間)
     /// </summary>
     public int CurrentBeatmapIndex
@@ -162,8 +157,7 @@ public class BeatmapTileList : MonoBehaviour
             BeatmapTiles.AddLast(InstantiateBeatmapTile(i));
             if (i == 0)
             {
-                FocusTile = BeatmapTiles.Last.Value;
-                background.sprite = FocusTile.Image.sprite;
+                background.sprite = BeatmapTiles.Last.Value.Image.sprite;
             }
         }
         IsBeatmapTileListCreated = true;
@@ -181,15 +175,9 @@ public class BeatmapTileList : MonoBehaviour
         BeatmapTiles.RemoveLast();
         foreach (var s in BeatmapTiles)
         {
-            if (s.Offset == 0)
-            {
-                s.SetColor(false);
-            }
             s.Offset++;
             if (s.Offset == 0)
             {
-                s.SetColor(true);
-                FocusTile = s;
                 background.sprite = s.Image.sprite;
             }
         }
@@ -208,15 +196,9 @@ public class BeatmapTileList : MonoBehaviour
         BeatmapTiles.RemoveFirst();
         foreach (var s in BeatmapTiles)
         {
-            if (s.Offset == 0)
-            {
-                s.SetColor(false);
-            }
             s.Offset--;
             if (s.Offset == 0)
             {
-                s.SetColor(true);
-                FocusTile = s;
                 background.sprite = s.Image.sprite;
             }
         }

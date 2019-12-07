@@ -4,20 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-interface IHold
+
+public class HoldObject : IHitObject, IHold
 {
     /// <summary>
     /// 軌道
     /// </summary>
-    int Track { get; set; }
+    public int Track { get; set; }
 
     /// <summary>
     /// 開始時間
     /// </summary>
-    int StartTime { get; set; }
+    public int StartTime { get; set; }
 
     /// <summary>
     /// 結束時間
     /// </summary>
-    int EndTime { get; set; }
+    public int EndTime { get; set; }
+
 }
