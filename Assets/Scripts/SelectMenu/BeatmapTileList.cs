@@ -154,11 +154,13 @@ public class BeatmapTileList : MonoBehaviour
         PlayCurrentMusic();
         for (int i = -OffsetRange; i <= OffsetRange; i++)
         {
-            BeatmapTiles.AddLast(InstantiateBeatmapTile(i));
+            var newBeatmapTile = InstantiateBeatmapTile(i);
+            BeatmapTiles.AddLast(newBeatmapTile);
             if (i == 0)
             {
-                background.sprite = BeatmapTiles.Last.Value.Image.sprite;
+                background.sprite = newBeatmapTile.Image.sprite;
             }
+            newBeatmapTile.GetComponent<RectTransform>().Translate(newBeatmapTile.transform.position.x * (Mathf.Abs(i) + 1), 0, 0);
         }
         IsBeatmapTileListCreated = true;
     }

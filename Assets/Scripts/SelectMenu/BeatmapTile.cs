@@ -17,7 +17,7 @@ public class BeatmapTile : MonoBehaviour
         new Vector3(130,260),
         new Vector3(120,180),
         new Vector3(110,100),
-        new Vector3(80,0),
+        new Vector3(60,0),
         new Vector3(110,-100),
         new Vector3(120,-180),
         new Vector3(130,-260),
