@@ -20,13 +20,13 @@ namespace Naukri.OsuAnalysis
                         HPDrainRate = decimal.Parse(pair[1]);
                         break;
                     case "CircleSize":
-                        CircleSize = int.Parse(pair[1]);
+                        CircleSize = float.Parse(pair[1]);
                         break;
                     case "OverallDifficulty":
                         OverallDifficulty = decimal.Parse(pair[1]);
                         break;
                     case "ApproachRate":
-                        ApproachRate = int.Parse(pair[1]);
+                        ApproachRate = float.Parse(pair[1]);
                         break;
                     case "SliderMultiplier":
                         SliderMultiplier = decimal.Parse(pair[1]);
@@ -45,7 +45,7 @@ namespace Naukri.OsuAnalysis
         /// <summary>
         /// CircleSize (CS) defines the size of the hit objects in the osu!standard mode.
         /// </summary>
-        public int CircleSize { get; set; }
+        public float CircleSize { get; set; }
 
         /// <summary>
         /// OverallDifficulty (OD) is the harshness of the hit window and the difficulty of spinners.
@@ -55,7 +55,7 @@ namespace Naukri.OsuAnalysis
         /// <summary>
         /// ApproachRate (AR) defines when hit objects start to fade in relatively to when they should be hit.
         /// </summary>
-        public int ApproachRate { get; set; }
+        public float ApproachRate { get; set; }
 
         /// <summary>
         /// SliderMultiplier (Decimal) specifies the multiplier of the slider velocity.

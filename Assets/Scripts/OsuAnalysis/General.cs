@@ -17,6 +17,10 @@ namespace Naukri.OsuAnalysis
                 switch (pair[0])
                 {
                     case "AudioFilename":
+                        while (pair[1].StartsWith(" "))
+                        {
+                            pair[1] = pair[1].Remove(0, 1);
+                        }
                         AudioFilename = pair[1];
                         break;
                     case "AudioLeadIn":
@@ -138,5 +142,26 @@ namespace Naukri.OsuAnalysis
         /// 指定情節提要是否可以使用用戶的皮膚資源。
         /// </summary>
         public bool UseSkinSprites { get; set; }
+
+        /// <summary>
+        /// 取得歌曲資訊
+        /// </summary>
+        /// <param name="path">完整路徑</param>
+        /// <returns>歌曲資訊</returns>
+        public static General GetGeneral(string path)
+        {
+            string line;
+            using (StreamReader sr = new StreamReader(path))
+            {
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (line == "[General]")
+                    {
+                        return new General(sr);
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

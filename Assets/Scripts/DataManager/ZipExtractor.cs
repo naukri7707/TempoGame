@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Mono.Data.Sqlite;
+using Naukri.OsuAnalysis;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -9,22 +11,18 @@ public static class ZipExtractor
     /// <summary>
     /// 解壓縮歌曲包 (.osz)
     /// </summary>
-    /// <param name="path">歌曲包絕對路徑 (包含.osz副檔名)</param>
-    public static void ExtractSong(string path)
+    /// <param name="src">壓縮檔絕對路徑 (包含副檔名)</param>
+    /// <param name="dst">目標資料夾絕對路徑</param>
+    /// <returns>解壓目錄絕對路徑</returns>
+    public static void ExtractZip(string src, string dst)
     {
-        string extractPath = Path.Combine(Application.streamingAssetsPath, "Songs", Path.GetFileNameWithoutExtension(path));
-        if (!Directory.Exists(extractPath))
+        if (!Directory.Exists(dst))
         {
-            ZipFile.ExtractToDirectory(path, extractPath);
+            ZipFile.ExtractToDirectory(src, dst);
         }
         else
         {
-            Debug.Log($"Folder Exists : {extractPath}");
+            Debug.Log($"Folder Exists : {dst}");
         }
-    }
-
-    public static void AnalysisSong(string path)
-    {
-
     }
 }

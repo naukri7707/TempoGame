@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using Naukri.OsuAnalysis;
+using System.Collections;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace Naukri.ExtensionMethods
@@ -11,7 +14,7 @@ namespace Naukri.ExtensionMethods
         /// </summary>
         /// <param name="self">物件本身</param>
         /// <param name="path">完整圖片路徑</param>
-        public static void SetSprite(this Image self, string path)
+        public static void GetExternalSprite(this Image self, string path)
         {
             using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read)) //自動雙清
             {
@@ -21,6 +24,89 @@ namespace Naukri.ExtensionMethods
                 Texture2D texture = new Texture2D(0, 0);
                 texture.LoadImage(bytes);
                 self.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one / 2);
+            }
+        }
+
+        /// <summary>
+        /// TODO TEST
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="path"></param>
+        /// <param name="playOnLoad"></param>
+        public static void GetExternalAudio(this AudioSource self, string path, bool playOnLoad = false)
+        {
+            var fileType = AudioType.ACC;
+            switch (Path.GetExtension(path))
+            {
+                case ".acc":
+                    fileType = AudioType.ACC;
+                    break;
+                case ".ogg":
+                    fileType = AudioType.OGGVORBIS;
+                    break;
+                case ".wav":
+                    fileType = AudioType.WAV;
+                    break;
+                default:
+                    break;
+            }
+            using (UnityWebRequest web = UnityWebRequestMultimedia.GetAudioClip(path, fileType))
+            {
+                var externalClip = DownloadHandlerAudioClip.GetContent(web);
+                externalClip.name = Path.GetFileNameWithoutExtension(path);
+                self.clip = externalClip;
+                if (playOnLoad)
+                {
+                    self.Play();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 異步取得外部音樂
+        /// </summary>
+        /// <param name="self">物件本身</param>
+        /// <param name="path">外部素材路徑</param>
+        /// <param name="playOnLoad">載入後撥放</param>
+        /// <returns></returns>
+        public static IEnumerator GetExternalAudioAsync(this AudioSource self, string path, bool playOnLoad = false)
+        {
+            if (!path.StartsWith("file://"))
+            {
+                path = "file://" + path;
+            }
+            var fileType = AudioType.UNKNOWN;
+            switch (Path.GetExtension(path))
+            {
+                case ".acc":
+                    fileType = AudioType.ACC;
+                    break;
+                case ".mp3":
+                    fileType = AudioType.MPEG;
+                    break;
+                case ".ogg":
+                    fileType = AudioType.OGGVORBIS;
+                    break;
+                case ".wav":
+                    fileType = AudioType.WAV;
+                    break;
+                default:
+                    yield return null;
+                    break;
+            }
+            using (UnityWebRequest web = UnityWebRequestMultimedia.GetAudioClip(path, fileType))
+            {
+                yield return web.SendWebRequest();
+                if (!web.isNetworkError && !web.isHttpError)
+                {
+                    var externalClip = DownloadHandlerAudioClip.GetContent(web);
+                    externalClip.name = Path.GetFileNameWithoutExtension(path);
+                    self.clip = externalClip;
+                    if (playOnLoad)
+                    {
+                        self.Play();
+                    }
+                }
             }
         }
     }

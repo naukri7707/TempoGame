@@ -104,5 +104,26 @@ namespace Naukri.OsuAnalysis
         /// 這組 Beatmap 集合的 ID
         /// </summary>
         public int BeatmapSetID { get; set; }
+
+        /// <summary>
+        /// 取得歌曲資訊
+        /// </summary>
+        /// <param name="path">完整路徑</param>
+        /// <returns>歌曲資訊</returns>
+        public static Metadata GetMetadata(string path)
+        {
+            string line;
+            using (StreamReader sr = new StreamReader(path))
+            {
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (line == "[Metadata]")
+                    {
+                        return new Metadata(sr);
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

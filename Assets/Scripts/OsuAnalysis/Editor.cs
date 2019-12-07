@@ -17,7 +17,7 @@ namespace Naukri.OsuAnalysis
                 switch (pair[0])
                 {
                     case "Bookmarks":
-                        Bookmarks = int.Parse(pair[1]);
+                        Bookmarks = pair[1];
                         break;
                     case "DistanceSpacing":
                         DistanceSpacing = decimal.Parse(pair[1]);
@@ -36,9 +36,9 @@ namespace Naukri.OsuAnalysis
         }
 
         /// <summary>
-        /// 編輯器書籤的逗號分隔時間列表 (毫秒)
+        /// 編輯器書籤的逗號分隔時間列表(未格式化) (毫秒) 
         /// </summary>
-        public int Bookmarks { get; set; }
+        public string Bookmarks { get; set; }
 
         /// <summary>
         /// 功能"距離捕捉"的倍數
