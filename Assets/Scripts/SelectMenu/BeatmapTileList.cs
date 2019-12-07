@@ -160,7 +160,7 @@ public class BeatmapTileList : MonoBehaviour
             {
                 background.sprite = newBeatmapTile.Image.sprite;
             }
-            newBeatmapTile.GetComponent<RectTransform>().Translate(newBeatmapTile.transform.position.x * (Mathf.Abs(i) + 1), 0, 0);
+            newBeatmapTile.GetComponent<RectTransform>().Translate(newBeatmapTile.transform.position.x * (Mathf.Abs(i) + 1.5F), 0, 0);
         }
         IsBeatmapTileListCreated = true;
     }

@@ -9,23 +9,23 @@ public class BeatmapTile : MonoBehaviour
     private const float alpha = 0.725F;
 
     private readonly Vector3[] metaTilesInitPos = {
-        new Vector3(180,660),
-        new Vector3(170,580),
-        new Vector3(160,500),
-        new Vector3(150,420),
+        new Vector3(250,660),
+        new Vector3(120,580),
+        new Vector3(190,500),
+        new Vector3(160,420),
         new Vector3(140,340),
-        new Vector3(130,260),
-        new Vector3(120,180),
-        new Vector3(110,100),
+        new Vector3(120,260),
+        new Vector3(110,180),
+        new Vector3(100,100),
         new Vector3(60,0),
-        new Vector3(110,-100),
-        new Vector3(120,-180),
-        new Vector3(130,-260),
+        new Vector3(100,-100),
+        new Vector3(110,-180),
+        new Vector3(120,-260),
         new Vector3(140,-340),
-        new Vector3(150,-420),
-        new Vector3(160,-500),
-        new Vector3(170,-580),
-        new Vector3(180,-660)
+        new Vector3(160,-420),
+        new Vector3(190,-500),
+        new Vector3(220,-580),
+        new Vector3(250,-660)
     };
 
     private float speed = 2.5F;

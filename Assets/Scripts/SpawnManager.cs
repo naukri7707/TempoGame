@@ -10,11 +10,9 @@ public class SpawnManager
 {
     private void Start()
     {
-        StreamReader sr = new StreamReader("Assets/IOFile/txtIO.txt");
-        string s = sr.ReadLine();
-        // TODO Analysis
-    }
 
+    }
+    List<IHitObject> hitObjects = new List<IHitObject>();
     /// <summary>
     /// 取得Beatmap
     /// </summary>
@@ -24,7 +22,7 @@ public class SpawnManager
         var beatmap = new Beatmap(GameArgs.SelectedBeatmapTileData.OsuFile);
         foreach (var hit in beatmap.HitObjects.Collection)
         {
-            //
+            // hitObjects.Add(new HoldObject(hit.))
         }
     }
 }
