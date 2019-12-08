@@ -4,7 +4,7 @@ using UnityEngine;
 
 static class GameArgs
 {
-    public static BeatmapTileData SelectedBeatmapTileData { get; set; }
+    public static BeatmapTileData SelectedBeatmap { get; set; }
 
     public static string GameDataPath { get; } = Path.Combine(Application.streamingAssetsPath, "GameData.db");
 

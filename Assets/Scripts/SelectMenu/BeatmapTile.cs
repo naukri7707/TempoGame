@@ -49,7 +49,7 @@ public class BeatmapTile : MonoBehaviour
 
     public int Offset { get; set; }
 
-    public Vector3 TargetPosition { get => metaTilesInitPos[Offset + BeatmapTileList.OffsetRange]; }
+    public Vector3 TargetPosition => metaTilesInitPos[Offset + BeatmapTileList.OffsetRange];
 
     public RectTransform RectTransform => rectTransform;
 
@@ -64,9 +64,9 @@ public class BeatmapTile : MonoBehaviour
     {
         Offset = offset;
         Random.InitState(beatmap.BeatmapSetID);
-        selfImage.color = new Color(Random.Range(0.5F,1), Random.Range(0.5F, 1), Random.Range(0.5F, 1), alpha);
+        selfImage.color = new Color(Random.Range(0.5F, 1), Random.Range(0.5F, 1), Random.Range(0.5F, 1), alpha);
         RectTransform.anchoredPosition = TargetPosition;
-        image.GetExternalSprite(beatmap.BackgroundPath);
+        image.SetSpriteExternal(beatmap.BackgroundPath);
         title.text = $"{(beatmap.TitleUnicode == "" ? beatmap.Title : beatmap.TitleUnicode)} - {beatmap.Version}";
         artist.text = $"{(beatmap.ArtistUnicode == "" ? beatmap.Artist : beatmap.ArtistUnicode)} // {beatmap.Creator}";
     }

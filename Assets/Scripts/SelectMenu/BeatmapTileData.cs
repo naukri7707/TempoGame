@@ -5,14 +5,14 @@ public struct BeatmapTileData
     public BeatmapTileData(
         int beatmapID,
         int beatmapSetID,
-        string title, 
-        string titleUnicode, 
-        string artist, 
-        string artistUnicode, 
+        string title,
+        string titleUnicode,
+        string artist,
+        string artistUnicode,
         string creator,
         string version,
-        string packageName, 
-        string backgroundFile, 
+        string packageName,
+        string backgroundFile,
         string musicFile,
         string osuFile)
     {
@@ -57,6 +57,8 @@ public struct BeatmapTileData
     public string BackgroundPath => Path.Combine(BeatmapManager.SongFolderPath, PackageName, BackgroundFile);
 
     public string MusicPath => Path.Combine(BeatmapManager.SongFolderPath, PackageName, MusicFile);
+
+    public string OsuPath => Path.Combine(BeatmapManager.SongFolderPath, PackageName, OsuFile);
 
     // TOFO OsuPath
 }

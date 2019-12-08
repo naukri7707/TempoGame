@@ -14,7 +14,7 @@ namespace Naukri.ExtensionMethods
         /// </summary>
         /// <param name="self">物件本身</param>
         /// <param name="path">完整圖片路徑</param>
-        public static void GetExternalSprite(this Image self, string path)
+        public static void SetSpriteExternal(this Image self, string path)
         {
             using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read)) //自動雙清
             {
@@ -28,48 +28,13 @@ namespace Naukri.ExtensionMethods
         }
 
         /// <summary>
-        /// 取得外部音效
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="path"></param>
-        /// <param name="playOnLoad"></param>
-        public static void GetExternalAudio(this AudioSource self, string path, bool playOnLoad = false)
-        {
-            var fileType = AudioType.ACC;
-            switch (Path.GetExtension(path))
-            {
-                case ".acc":
-                    fileType = AudioType.ACC;
-                    break;
-                case ".ogg":
-                    fileType = AudioType.OGGVORBIS;
-                    break;
-                case ".wav":
-                    fileType = AudioType.WAV;
-                    break;
-                default:
-                    break;
-            }
-            using (UnityWebRequest web = UnityWebRequestMultimedia.GetAudioClip(path, fileType))
-            {
-                var externalClip = DownloadHandlerAudioClip.GetContent(web);
-                externalClip.name = Path.GetFileNameWithoutExtension(path);
-                self.clip = externalClip;
-                if (playOnLoad)
-                {
-                    self.Play();
-                }
-            }
-        }
-
-        /// <summary>
         /// 異步取得外部音樂
         /// </summary>
         /// <param name="self">物件本身</param>
         /// <param name="path">外部素材路徑</param>
         /// <param name="playOnLoad">載入後撥放</param>
         /// <returns></returns>
-        public static IEnumerator GetExternalAudioAsync(this AudioSource self, string path, bool playOnLoad = false)
+        public static IEnumerator SetAudioExternalAsync(this AudioSource self, string path, bool playOnLoad = false)
         {
             if (!path.StartsWith("file://"))
             {
@@ -91,8 +56,7 @@ namespace Naukri.ExtensionMethods
                     fileType = AudioType.WAV;
                     break;
                 default:
-                    yield return null;
-                    break;
+                    yield break;
             }
             using (UnityWebRequest web = UnityWebRequestMultimedia.GetAudioClip(path, fileType))
             {

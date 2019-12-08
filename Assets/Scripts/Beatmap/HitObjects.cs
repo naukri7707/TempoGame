@@ -5,7 +5,7 @@ namespace Naukri.Beatmap
 {
     public class HitObjects
     {
-        public const int MIN_HOLDTIME = 30;
+        public const int MIN_HOLDTIME = 0;
 
         public struct HitSample
         {

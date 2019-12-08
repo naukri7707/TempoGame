@@ -58,52 +58,63 @@ namespace Naukri.Beatmap
         /// <summary>
         /// 標題 (ASCII)
         /// </summary>
-        public string Title { get; set; }
+        public string Title { get; }
 
         /// <summary>
-        /// 標題 (Unicode) 若不支援 Unicode 則使用 ASCII
+        /// 標題 (Unicode) 
         /// </summary>
-        public string TitleUnicode { get; set; }
+        public string TitleUnicode { get; }
 
         /// <summary>
-        /// 歌手名稱 (ASCII)
+        /// 正確的標題 若不支援 Unicode 則使用 ASCII
         /// </summary>
-        public string Artist { get; set; }
+        public string TrueTitle => TitleUnicode == "" ? Title : TitleUnicode;
 
         /// <summary>
-        /// 歌手名稱 (Unicode) 若不支援 Unicode 則使用 ASCII
+        /// 音樂家名稱 (ASCII)
         /// </summary>
-        public string ArtistUnicode { get; set; }
+        public string Artist { get; }
+
+        /// <summary>
+        /// 音樂家名稱 (Unicode) 若不支援 Unicode 則使用 ASCII
+        /// </summary>
+        public string ArtistUnicode { get; }
+
+        /// <summary>
+        /// 正確的音樂家 若不支援 Unicode 則使用 ASCII
+        /// </summary>
+        public string TrueArtist => ArtistUnicode == "" ? Artist : ArtistUnicode;
 
         /// <summary>
         /// Beatmap 的製作玩家名稱
         /// </summary>
-        public string Creator { get; set; }
+        public string Creator { get; }
 
         /// <summary>
         /// 歌曲難度
         /// </summary>
-        public string Version { get; set; }
+        public string Version { get; }
 
         /// <summary>
         /// 歌曲來源
         /// </summary>
-        public string Source { get; set; }
+        public string Source { get; }
 
         /// <summary>
         /// 歌曲標籤集合，用於搜索
         /// </summary>
-        public List<string> Tags { get; set; }
+        public List<string> Tags { get; }
 
         /// <summary>
         /// 這個 Beatmap 的 ID
         /// </summary>
-        public int BeatmapID { get; set; }
+        public int BeatmapID { get; }
 
         /// <summary>
         /// 這組 Beatmap 集合的 ID
         /// </summary>
-        public int BeatmapSetID { get; set; }
+        public int BeatmapSetID { get; }
+
 
         /// <summary>
         /// 取得歌曲資訊

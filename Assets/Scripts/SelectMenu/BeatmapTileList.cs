@@ -209,7 +209,7 @@ public class BeatmapTileList : MonoBehaviour
 
     private void SelectSong()
     {
-        GameArgs.SelectedBeatmapTileData = BeatmapTileDatas[CurrentBeatmapIndex];
+        GameArgs.SelectedBeatmap = BeatmapTileDatas[CurrentBeatmapIndex];
         LoadingScene.LoadScene(3);
     }
 
@@ -249,7 +249,7 @@ public class BeatmapTileList : MonoBehaviour
     /// </summary>
     private void PlayCurrentMusic()
     {
-        StartCoroutine(musicPreview.GetExternalAudioAsync(BeatmapTileDatas[CurrentBeatmapIndex].MusicPath, true));
+        StartCoroutine(musicPreview.SetAudioExternalAsync(BeatmapTileDatas[CurrentBeatmapIndex].MusicPath, true));
     }
 
     /// <summary>

@@ -51,7 +51,7 @@ public class MessageBox : MonoBehaviour
     /// <summary>
     /// 訊息存活時間
     /// </summary>
-    public const float messageAliveTime = 10F;
+    public const float messageAliveTime = 5F;
     [SerializeField]
     private RectTransform rectTransform;
 
@@ -109,6 +109,13 @@ public class MessageBox : MonoBehaviour
         StartCoroutine(DeleteWhenTimeUp());
     }
 
+    private static void CleanUp()
+    {
+        Collection.Clear();
+        MessageBoxQueue.Clear();
+        LazyMessageQueue.Clear();
+    }
+
     /// <summary>
     /// 實例化訊息
     /// </summary>
@@ -116,6 +123,12 @@ public class MessageBox : MonoBehaviour
     /// <param name="logType">型態</param>
     private static void InstantiateMessageBox(string message, LogType logType = LogType.Log)
     {
+        if (canvas == null)
+        {
+            CleanUp();
+            messageBoxPrefab = Resources.Load<GameObject>(@"Prefabs/MessageBox");
+            canvas = GameObject.Find("Canvas");
+        }
         var msg = (GameObject.Instantiate(messageBoxPrefab, canvas.transform) as GameObject).GetComponent<MessageBox>();
         msg.Message = message;
         switch (logType)
@@ -139,11 +152,6 @@ public class MessageBox : MonoBehaviour
     /// <param name="logType">訊息樣式</param>
     public static void Show(string message, LogType logType = LogType.Log)
     {
-        if (messageBoxPrefab == null)
-        {
-            messageBoxPrefab = Resources.Load<GameObject>(@"Prefabs/MessageBox");
-            canvas = GameObject.Find("Canvas");
-        }
         // 實例化自己
         InstantiateMessageBox(message, logType);
     }
@@ -164,11 +172,6 @@ public class MessageBox : MonoBehaviour
         // 減少反覆運算消耗
         if (LazyMessageQueue.Count > 0)
         {
-            if (messageBoxPrefab == null)
-            {
-                messageBoxPrefab = Resources.Load<GameObject>(@"Prefabs/MessageBox");
-                canvas = GameObject.Find("Canvas");
-            }
             foreach (var message in LazyMessageQueue)
             {
                 InstantiateMessageBox(message.Message, message.LogType);
