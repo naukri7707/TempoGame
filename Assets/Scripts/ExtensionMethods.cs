@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Naukri.ExtensionMethods
 {
-    public static class ExtensionMethods
+    public static partial class ExtensionMethods
     {
         /// <summary>
         /// 將 Image 的 Sprite 設為指定路徑下的圖片

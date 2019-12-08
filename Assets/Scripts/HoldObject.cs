@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using UnityEngine;
 
-
-public class HoldObject : IHitObject, IHold
+public class HoldObject : MonoBehaviour, IHitObject, IHold
 {
-    /// <summary>
-    /// 初始化物件
-    /// </summary>
-    /// <param name="track"></param>
-    /// <param name="startTime"></param>
-    /// <param name="endTime"></param>
-    public HoldObject(int track, int startTime, int endTime)
-    {
-        Track = track;
-        StartTime = startTime;
-        EndTime = endTime;
-    }
+    private const float movePerFrame = -200F;
+
+    [SerializeField]
+    private RectTransform rectTransform;
+
+    private readonly static float[] hitObjectsPosX = {
+        -90F,
+        -30F,
+        30F,
+        90F
+    };
 
     /// <summary>
     /// 軌道
@@ -26,13 +20,57 @@ public class HoldObject : IHitObject, IHold
     public int Track { get; set; }
 
     /// <summary>
-    /// 開始時間
+    /// 開始時間 (秒)
     /// </summary>
-    public int StartTime { get; set; }
+    public float StartTime { get; set; }
 
     /// <summary>
-    /// 結束時間
+    /// 結束時間 (秒)
     /// </summary>
-    public int EndTime { get; set; }
+    public float EndTime { get; set; }
 
+    private void Start()
+    {
+        rectTransform.anchoredPosition = new Vector2(hitObjectsPosX[Track], -StartTime * movePerFrame);
+        rectTransform.SetHeight((StartTime - EndTime) * movePerFrame);
+    }
+
+    private void Update()
+    {
+        rectTransform.Translate(0, movePerFrame * Time.deltaTime, 0);
+    }
+
+}
+
+public static partial class ExtensionMethods
+{
+    public static void SetLeft(this RectTransform rt, float left)
+    {
+        rt.offsetMin = new Vector2(left, rt.offsetMin.y);
+    }
+
+    public static void SetRight(this RectTransform rt, float right)
+    {
+        rt.offsetMax = new Vector2(-right, rt.offsetMax.y);
+    }
+
+    public static void SetTop(this RectTransform rt, float top)
+    {
+        rt.offsetMax = new Vector2(rt.offsetMax.x, -top);
+    }
+
+    public static void SetBottom(this RectTransform rt, float bottom)
+    {
+        rt.offsetMin = new Vector2(rt.offsetMin.x, bottom);
+    }
+
+    public static void SetWidth(this RectTransform rt, float width)
+    {
+        rt.sizeDelta = new Vector2(width, rt.sizeDelta.y);
+    }
+
+    public static void SetHeight(this RectTransform rt, float height)
+    {
+        rt.sizeDelta = new Vector2(rt.sizeDelta.x, height);
+    }
 }

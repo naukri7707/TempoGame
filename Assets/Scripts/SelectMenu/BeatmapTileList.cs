@@ -209,6 +209,7 @@ public class BeatmapTileList : MonoBehaviour
 
     private void SelectSong()
     {
+        GameArgs.SelectedBeatmapTileData = BeatmapTileDatas[CurrentBeatmapIndex];
         LoadingScene.LoadScene(3);
     }
 

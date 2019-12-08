@@ -43,47 +43,52 @@ namespace Naukri.Beatmap
                 {
                     continue;
                 }
-                var data = line.Split(',', ':');
-                if (data.Length == 10)
+                var data = line.Split(',');
+                var sampleData = data[data.Length - 1].Split(':');
+                var type = int.Parse(data[3]);
+                // Normal Note
+                if (type == 1)
                 {
                     objs.Add(new HitObject
                     {
                         X = int.Parse(data[0]),
                         Y = int.Parse(data[1]),
                         Time = int.Parse(data[2]),
-                        Type = int.Parse(data[3]),
+                        Type = type,
                         HitSound = int.Parse(data[4]),
                         EndTime = int.Parse(data[2]) + MIN_HOLDTIME,
                         HitSample = new HitSample
                         {
-                            NormalSet = int.Parse(data[5]),
-                            AdditionSet = int.Parse(data[6]),
-                            Index = int.Parse(data[7]),
-                            Volume = int.Parse(data[8]),
-                            Filename = data[9]
+                            NormalSet = sampleData.Length > 0 ? int.Parse(sampleData[0]) : 0,
+                            AdditionSet = sampleData.Length > 1 ? int.Parse(sampleData[1]) : 0,
+                            Index = sampleData.Length > 2 ? int.Parse(sampleData[2]) : 0,
+                            Volume = sampleData.Length > 3 ? int.Parse(sampleData[3]) : 0,
+                            Filename = sampleData.Length > 4 ? sampleData[4] : ""
                         }
                     });
                 }
-                else if (data.Length == 11)
+                // Hold
+                else if (type == 128)
                 {
                     objs.Add(new HitObject
                     {
                         X = int.Parse(data[0]),
                         Y = int.Parse(data[1]),
                         Time = int.Parse(data[2]),
-                        Type = int.Parse(data[3]),
+                        Type = type,
                         HitSound = int.Parse(data[4]),
-                        EndTime = int.Parse(data[5]),
+                        EndTime = int.Parse(sampleData[0]),
                         HitSample = new HitSample
                         {
-                            NormalSet = int.Parse(data[6]),
-                            AdditionSet = int.Parse(data[7]),
-                            Index = int.Parse(data[8]),
-                            Volume = int.Parse(data[9]),
-                            Filename = data[10]
+                            NormalSet = sampleData.Length > 1 ? int.Parse(sampleData[1]) : 0,
+                            AdditionSet = sampleData.Length > 2 ? int.Parse(sampleData[2]) : 0,
+                            Index = sampleData.Length > 3 ? int.Parse(sampleData[3]) : 0,
+                            Volume = sampleData.Length > 4 ? int.Parse(sampleData[4]) : 0,
+                            Filename = sampleData.Length > 5 ? sampleData[5] : ""
                         }
                     });
                 }
+               
             }
             Collection = objs.ToArray();
         }

@@ -1,28 +1,31 @@
-﻿using Mono.Data.Sqlite;
-using Naukri.Beatmap;
-using System.Collections;
-using System.Collections.Generic;
+﻿using Naukri.Beatmap;
 using System.IO;
 using UnityEngine;
 
-[System.Serializable]
-public class SpawnManager
+public class SpawnManager : MonoBehaviour
 {
-    private void Start()
-    {
+    [SerializeField]
+    private GameObject holdObjectPrefab;
 
+    private void Awake()
+    {
+        InstantisteBeatmap();
     }
-    List<IHitObject> hitObjects = new List<IHitObject>();
+
     /// <summary>
     /// 取得Beatmap
     /// </summary>
     /// <param name="beatmapID">Beatmap ID</param>
-    private void GetBeatmap(int beatmapID)
+    private void InstantisteBeatmap()
     {
-        var beatmap = new Beatmap(GameArgs.SelectedBeatmapTileData.OsuFile);
+        var beatmap = new Beatmap(Path.Combine(BeatmapManager.SongFolderPath, GameArgs.SelectedBeatmapTileData.PackageName, GameArgs.SelectedBeatmapTileData.OsuFile));
         foreach (var hit in beatmap.HitObjects.Collection)
         {
-            // hitObjects.Add(new HoldObject(hit.))
+            var newObject = Instantiate(holdObjectPrefab, transform).GetComponent<HoldObject>();
+            newObject.Track = Mathf.FloorToInt(hit.X * 4 / 512);
+            newObject.StartTime = (float)hit.Time / 1000;
+            newObject.EndTime = (float)hit.EndTime / 1000;
+
         }
     }
 }

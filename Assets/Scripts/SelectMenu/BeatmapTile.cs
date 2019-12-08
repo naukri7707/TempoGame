@@ -10,7 +10,7 @@ public class BeatmapTile : MonoBehaviour
 
     private readonly Vector3[] metaTilesInitPos = {
         new Vector3(250,660),
-        new Vector3(120,580),
+        new Vector3(220,580),
         new Vector3(190,500),
         new Vector3(160,420),
         new Vector3(140,340),
@@ -39,30 +39,25 @@ public class BeatmapTile : MonoBehaviour
     [SerializeField]
     private Text artist;
 
+    [SerializeField]
     private RectTransform rectTransform;
 
+    [SerializeField]
     private Image selfImage;
+
+    public Image Image => image;
 
     public int Offset { get; set; }
 
-    public Image Image { get => image; set => image = value; }
-
-    public Text Title { get => title; set => title = value; }
-
-    public Text Artist { get => artist; set => artist = value; }
-
     public Vector3 TargetPosition { get => metaTilesInitPos[Offset + BeatmapTileList.OffsetRange]; }
 
-    private void Awake()
-    {
-        rectTransform = GetComponent<RectTransform>();
-        selfImage = GetComponent<Image>();
-    }
+    public RectTransform RectTransform => rectTransform;
+
 
     // Update is called once per frame
     private void Update()
     {
-        rectTransform.anchoredPosition = Vector3.Lerp(rectTransform.anchoredPosition, TargetPosition, speed * Time.deltaTime);
+        RectTransform.anchoredPosition = Vector3.Lerp(RectTransform.anchoredPosition, TargetPosition, speed * Time.deltaTime);
     }
 
     public void SetInfo(int offset, BeatmapTileData beatmap)
@@ -70,9 +65,9 @@ public class BeatmapTile : MonoBehaviour
         Offset = offset;
         Random.InitState(beatmap.BeatmapSetID);
         selfImage.color = new Color(Random.Range(0.5F,1), Random.Range(0.5F, 1), Random.Range(0.5F, 1), alpha);
-        rectTransform.anchoredPosition = TargetPosition;
-        Image.GetExternalSprite(beatmap.BackgroundPath);
-        Title.text = $"{(beatmap.TitleUnicode == "" ? beatmap.Title : beatmap.TitleUnicode)} - {beatmap.Version}";
-        Artist.text = $"{(beatmap.ArtistUnicode == "" ? beatmap.Artist : beatmap.ArtistUnicode)} // {beatmap.Creator}";
+        RectTransform.anchoredPosition = TargetPosition;
+        image.GetExternalSprite(beatmap.BackgroundPath);
+        title.text = $"{(beatmap.TitleUnicode == "" ? beatmap.Title : beatmap.TitleUnicode)} - {beatmap.Version}";
+        artist.text = $"{(beatmap.ArtistUnicode == "" ? beatmap.Artist : beatmap.ArtistUnicode)} // {beatmap.Creator}";
     }
 }

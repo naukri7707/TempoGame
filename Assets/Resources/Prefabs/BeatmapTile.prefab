@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 2147989010489281978}
   - component: {fileID: 5176900443097824017}
   m_Layer: 5
-  m_Name: MetaTile
+  m_Name: BeatmapTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -319,3 +319,5 @@ MonoBehaviour:
   image: {fileID: 2147989010131232672}
   title: {fileID: 2147989010223456362}
   artist: {fileID: 2147989009199143012}
+  rectTransform: {fileID: 2147989010489281977}
+  selfImage: {fileID: 2147989010489281978}

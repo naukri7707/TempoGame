@@ -14,10 +14,10 @@ interface IHold
     /// <summary>
     /// 開始時間
     /// </summary>
-    int StartTime { get; set; }
+    float StartTime { get; set; }
 
     /// <summary>
     /// 結束時間
     /// </summary>
-    int EndTime { get; set; }
+    float EndTime { get; set; }
 }
