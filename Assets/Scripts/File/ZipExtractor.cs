@@ -1,8 +1,4 @@
-﻿using Mono.Data.Sqlite;
-using Naukri.Beatmap;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 using UnityEngine;
 
@@ -18,6 +14,7 @@ public static class ZipExtractor
     {
         if (!Directory.Exists(dst))
         {
+            
             ZipFile.ExtractToDirectory(src, dst);
         }
         else

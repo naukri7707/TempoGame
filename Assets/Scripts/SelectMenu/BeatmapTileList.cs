@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class BeatmapTileList : MonoBehaviour
@@ -210,7 +211,7 @@ public class BeatmapTileList : MonoBehaviour
     private void SelectSong()
     {
         GameArgs.SelectedBeatmap = BeatmapTileDatas[CurrentBeatmapIndex];
-        LoadingScene.LoadScene(3);
+        SceneManager.LoadScene(1);
     }
 
     private BeatmapTile InstantiateBeatmapTile(int offset)

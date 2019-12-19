@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class HitObjectBaseline : MonoBehaviour
 {
-    [SerializeField][Range(0,1)]
+    [SerializeField]
+    [Range(0, 1)]
     private float offset;
 
     [SerializeField]
@@ -16,6 +17,7 @@ public class HitObjectBaseline : MonoBehaviour
 
     private void Awake()
     {
-        GetComponent<RectTransform>().anchoredPosition = new Vector2(0, (CanvasRect.offsetMax.y - CanvasRect.offsetMin.y) * Offset);
+        var pos = new Vector2(0, (CanvasRect.offsetMax.y - CanvasRect.offsetMin.y) * Offset);
+        GetComponent<RectTransform>().anchoredPosition = pos;
     }
 }

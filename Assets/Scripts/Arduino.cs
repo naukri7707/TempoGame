@@ -4,37 +4,91 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Arduino : MonoBehaviour
 {
-
-
     public static ArduinoButton[] Buttons { get; set; } = new ArduinoButton[5];
 
     private void Update()
     {
-        // TODO 從序列阜取得 Arduino Message
-        string arduinoMessage = "2";
-        //
-        int arduino = int.Parse(arduinoMessage);
-        // 更新按鈕狀況
-        for (var i = 0; i < Buttons.Length; i++)
+        if (!GameManager.AIPlay)
         {
-            Buttons[i].Press = (arduino & (i + 1)) != 0;
+            SetStates(StatesInfoFromKeyBoard());
+            // SetStates(int.Parse(ArduinoInput.IncomingData));
         }
-        KeyBoard();
     }
 
-    private void KeyBoard()
+    // 將輸入資訊轉譯成按鈕資訊
+    public void SetStates(int stateInfo)
     {
-        Buttons[0].Press = Input.GetKey(KeyCode.D);
-        Buttons[1].Press = Input.GetKey(KeyCode.F);
-        Buttons[2].Press = Input.GetKey(KeyCode.J);
-        Buttons[3].Press = Input.GetKey(KeyCode.K);
+        for (int i = 0; i < 4; i++)
+        {
+            Buttons[i].SetState((stateInfo & (1 << i)) != 0);
+            GameArgs.PressEffect[i].enabled = Buttons[i].State == ButtonState.Down || Buttons[i].State == ButtonState.Hold;
+        }
+    }
+
+    // 鍵盤模擬輸入
+    private int StatesInfoFromKeyBoard()
+    {
+        int res = 0;
+        if (Input.GetKey(KeyCode.D) || Input.GetKeyDown(KeyCode.D))
+            res |= 1;
+        if (Input.GetKey(KeyCode.F) || Input.GetKeyDown(KeyCode.F))
+            res |= 2;
+        if (Input.GetKey(KeyCode.J) || Input.GetKeyDown(KeyCode.J))
+            res |= 4;
+        if (Input.GetKey(KeyCode.K) || Input.GetKeyDown(KeyCode.K))
+            res |= 8;
+        return res;
     }
 }
 
 public struct ArduinoButton
 {
-    public bool Press { get; set; } // TODo KeyDown 避免 按住 一直消
+    public ButtonState State { get; set; }
+
+    public void SetState(bool isKeyDown)
+    {
+        if (isKeyDown)
+        {
+            switch (State)
+            {
+                case ButtonState.Down:
+                    State = ButtonState.Hold;
+                    break;
+                case ButtonState.Up:
+                case ButtonState.None:
+                    State = ButtonState.Down;
+                    break;
+            }
+        }
+        else
+        {
+            switch (State)
+            {
+                case ButtonState.Down:
+                case ButtonState.Hold:
+                    State = ButtonState.Up;
+                    break;
+                case ButtonState.Up:
+                    State = ButtonState.None;
+                    break;
+            }
+        }
+    }
+
+    public static implicit operator ButtonState(ArduinoButton state)
+    {
+        return state.State;
+    }
+}
+
+public enum ButtonState
+{
+    None,
+    Down,
+    Hold,
+    Up,
 }

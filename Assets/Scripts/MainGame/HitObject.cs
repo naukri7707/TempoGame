@@ -1,27 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
-public class HitObject : MonoBehaviour
-{
+// TODO 按到時特效
 
+public abstract class HitObject : MonoBehaviour
+{
     /// <summary>
     /// 預設速度
     /// </summary>
-    private const float speed = -500F;
+    private const float speed = -700F;
 
     /// <summary>
     /// 欄位 X 軸
     /// </summary>
-    protected readonly static float[] hitObjectsPosX = {
-        -108F,
-        -36F,
-        36F,
-        108F
-    };
+    protected static float[] PosX => GameArgs.TrackPosX;
 
     [SerializeField]
     protected RectTransform rectTransform;
@@ -29,12 +21,17 @@ public class HitObject : MonoBehaviour
     /// <summary>
     /// 速度
     /// </summary>
-    private static float CurrentSpeed { get; set; } = speed;
+    protected static float CurrentSpeed { get; set; } = speed;
 
     /// <summary>
     /// 活性
     /// </summary>
     public static bool IsActive => CurrentSpeed == speed;
+
+    /// <summary>
+    /// 數量
+    /// </summary>
+    public static int Count { get; set; } = 0;
 
     /// <summary>
     /// 開始時間 (秒)
@@ -52,6 +49,16 @@ public class HitObject : MonoBehaviour
     public int Track { get; set; }
 
     /// <summary>
+    /// 得分
+    /// </summary>
+    protected int Score { get; set; } = 0;
+
+    /// <summary>
+    /// 已經結算
+    /// </summary>
+    protected bool IsSettle { get; set; } = false;
+
+    /// <summary>
     /// 頂部
     /// </summary>
     public float Top => rectTransform.offsetMax.y;
@@ -61,15 +68,40 @@ public class HitObject : MonoBehaviour
     /// </summary>
     public float Bottom => rectTransform.offsetMin.y;
 
+    protected virtual void Awake()
+    {
+        Count++;
+    }
+
     private void Start()
     {
-        rectTransform.anchoredPosition = new Vector2(hitObjectsPosX[Track], -StartTime * speed);
+        rectTransform.anchoredPosition = new Vector2(PosX[Track], -StartTime * speed);
         rectTransform.SetHeight((StartTime - EndTime) * speed);
     }
 
     private void Update()
     {
         rectTransform.Translate(0, CurrentSpeed * Time.deltaTime, 0);
+    }
+
+    // 判定是否必為 miss
+    public abstract bool IsOver();
+
+    // 當這個按鈕處於當前Track可被按下的HitObject中最下面時且按鈕按下時
+    public abstract void OnFocus(ButtonState state);
+
+    // 結算
+    protected void Settle()
+    {
+        Count--;
+        GameManager.Instance.AddScore(Score);
+        IsSettle = true;
+    }
+
+    // 離開螢幕
+    public bool IsOutOfScreen()
+    {
+        return false; // return Top + 100 getCanvas ? maybe on gameManager?
     }
 
     public bool InTolerance(float tolerance) => 0F.InRange(rectTransform.offsetMin.y - tolerance, rectTransform.offsetMax.y + tolerance);

@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 70, y: 10}
+  m_SizeDelta: {x: 288, y: 2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &628831640
 CanvasRenderer:
@@ -108,7 +108,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 70, y: 10}
+  m_SizeDelta: {x: 288, y: 2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1738684094
 CanvasRenderer:
@@ -157,9 +157,9 @@ GameObject:
   - component: {fileID: 3477873827704887389}
   - component: {fileID: 3477873827704887391}
   - component: {fileID: 3477873827704887390}
-  - component: {fileID: 3477873827704887376}
+  - component: {fileID: 4141542882320191208}
   m_Layer: 5
-  m_Name: HitObject
+  m_Name: SeparateObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -184,7 +184,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 100}
+  m_SizeDelta: {x: 50, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &3477873827704887391
 CanvasRenderer:
@@ -208,7 +208,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -222,7 +222,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3477873827704887376
+--- !u!114 &4141542882320191208
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -231,7 +231,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3477873827704887388}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7794ca1c098b01409c7808e29ee8c40, type: 3}
+  m_Script: {fileID: 11500000, guid: 5f0b7b855839d6b4fa667b9d8c3a5754, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rectTransform: {fileID: 3477873827704887389}
