@@ -35,6 +35,8 @@ public class BeatmapTileList : MonoBehaviour
 
     private int loopShiftTime = 150;
 
+    private bool extracting = false;
+
     /// <summary>
     /// 音樂磚串列
     /// </summary>
@@ -44,6 +46,8 @@ public class BeatmapTileList : MonoBehaviour
     /// 歌曲資料表
     /// </summary>
     public static List<BeatmapTileData> BeatmapTileDatas { get; private set; }
+
+    public static LinkedListNode<BeatmapTile> CurrentBeatmapTileNode { get; private set; }
 
     /// <summary>
     /// 當前歌曲包 (中間)
@@ -130,10 +134,7 @@ public class BeatmapTileList : MonoBehaviour
             }
         }
         // 開一個解壓縮用的執行緒
-        var theard = new Thread(ExtractOsz);
-        theard.Start();
-        // 監聽解壓執行緒
-        StartCoroutine(ShowLazyMessage(theard));
+        ExtractOsz();
         // 產生圖譜表
         CreateBeatmapTileList();
     }
@@ -199,14 +200,15 @@ public class BeatmapTileList : MonoBehaviour
         {
             return;
         }
-        CurrentBeatmapIndex = 0;
-        PlayCurrentMusic();
+        CurrentBeatmapIndex = Random.Range(0, BeatmapTileDatas.Count);
+        PlayMusic(BeatmapTileDatas[CurrentBeatmapIndex].MusicPath);
         for (int i = -OffsetRange; i <= OffsetRange; i++)
         {
             var newBeatmapTile = InstantiateBeatmapTile(i);
             BeatmapTiles.AddLast(newBeatmapTile);
             if (i == 0)
             {
+                CurrentBeatmapTileNode = BeatmapTiles.Last;
                 background.sprite = newBeatmapTile.Image.sprite;
             }
             newBeatmapTile.GetComponent<RectTransform>().Translate(newBeatmapTile.transform.position.x * (Mathf.Abs(i) + 1.5F), 0, 0);
@@ -216,12 +218,12 @@ public class BeatmapTileList : MonoBehaviour
 
     private void ShiftUp()
     {
-        int prevBeatmapSet = BeatmapTileDatas[CurrentBeatmapIndex].BeatmapSetID;
-        CurrentBeatmapIndex--;
-        if (BeatmapTileDatas[CurrentBeatmapIndex].BeatmapSetID != prevBeatmapSet)
+        if (CurrentBeatmapTileNode.Value.BeatmapSetID != CurrentBeatmapTileNode.Previous.Value.BeatmapSetID)
         {
-            PlayCurrentMusic();
+            PlayMusic(CurrentBeatmapTileNode.Previous.Value.MusicPath);
         }
+        CurrentBeatmapTileNode = CurrentBeatmapTileNode.Previous;
+        CurrentBeatmapIndex--;
         Destroy(BeatmapTiles.Last.Value.gameObject);
         BeatmapTiles.RemoveLast();
         foreach (var s in BeatmapTiles)
@@ -237,12 +239,12 @@ public class BeatmapTileList : MonoBehaviour
 
     private void ShiftDown()
     {
-        int prevBeatmapSet = BeatmapTileDatas[CurrentBeatmapIndex].BeatmapSetID;
-        CurrentBeatmapIndex++;
-        if (BeatmapTileDatas[CurrentBeatmapIndex].BeatmapSetID != prevBeatmapSet)
+        if (CurrentBeatmapTileNode.Value.BeatmapSetID != CurrentBeatmapTileNode.Next.Value.BeatmapSetID)
         {
-            PlayCurrentMusic();
+            PlayMusic(CurrentBeatmapTileNode.Next.Value.MusicPath);
         }
+        CurrentBeatmapTileNode = CurrentBeatmapTileNode.Next;
+        CurrentBeatmapIndex++;
         Destroy(BeatmapTiles.First.Value.gameObject);
         BeatmapTiles.RemoveFirst();
         foreach (var s in BeatmapTiles)
@@ -330,37 +332,55 @@ public class BeatmapTileList : MonoBehaviour
     }
 
     /// <summary>
-    /// 播放當前 beatmap 音樂
+    /// 播放 beatmap 音樂
     /// </summary>
-    private void PlayCurrentMusic()
+    /// <param name="musicPath">音樂路徑</param>
+    private void PlayMusic(string musicPath)
     {
-        StartCoroutine(musicPreview.SetAudioExternalAsync(BeatmapTileDatas[CurrentBeatmapIndex].MusicPath, true));
+        StartCoroutine(musicPreview.SetAudioExternalAsync(musicPath, true));
     }
 
     /// <summary>
     /// 解壓縮 Osz
     /// </summary>
-    private void ExtractOsz()
+    private async void ExtractOsz()
     {
-        var newBeatmap = BeatmapManager.ExtractOszFromPackageFolder();
+        extracting = true;
+        ExtractListener();
+        int newBeatmap = 0;
+        await Task.Run(() =>
+        {
+            newBeatmap = BeatmapManager.ExtractOszFromPackageFolder();
+        });
         if (newBeatmap > 0)
         {
-            MessageBox.ShowLazy($"解析完成，共新增了{newBeatmap}張圖譜！");
+            MessageBox.Show($"解析完成，共新增了{newBeatmap}張圖譜！");
         }
+        extracting = false;
     }
 
-    private IEnumerator ShowLazyMessage(Thread listen)
+    /// <summary>
+    /// 解壓縮監測器
+    /// </summary>
+    private async void ExtractListener()
     {
-        // 當執行緒還在執行時，每秒監聽一次
-        while (listen.IsAlive)
+        // 等待載入首張 beatmap
+        if (BeatmapTileDatas.Count == 0)
         {
-            yield return new WaitForFixedUpdate();
-            if (BeatmapTileDatas.Count > 0 && IsBeatmapTileListCreated == false)
+            while (BeatmapTileDatas.Count == 0)
             {
-                MessageBox.Show($"發現資源正在重新載入...");
-                CreateBeatmapTileList();
+                await Task.Delay(10);
             }
+            MessageBox.Show("發現圖譜，正在重新載入");
+            CreateBeatmapTileList();
             MessageBox.PushLazy();
+        }
+        int count = BeatmapTileDatas.Count;
+        while (extracting)
+        {
+            MessageBox.PushLazy();
+            count = BeatmapTileDatas.Count;
+            await new WaitUntil(() => count < BeatmapTileDatas.Count);
         }
     }
 }

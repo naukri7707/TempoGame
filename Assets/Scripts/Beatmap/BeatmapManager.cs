@@ -31,6 +31,7 @@ public static class BeatmapManager
             {
                 res += ExtractOsz(fi.FullName);
             }
+
         }
         return res;
     }

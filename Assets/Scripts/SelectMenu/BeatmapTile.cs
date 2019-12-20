@@ -45,14 +45,23 @@ public class BeatmapTile : MonoBehaviour
     [SerializeField]
     private Image selfImage;
 
+
+    [SerializeField]
+    BeatmapTileData beatmapTileData;
+
     public Image Image => image;
 
     public int Offset { get; set; }
+
+    public int BeatmapID => beatmapTileData.BeatmapID;
+
+    public int BeatmapSetID => beatmapTileData.BeatmapSetID;
 
     public Vector3 TargetPosition => metaTilesInitPos[Offset + BeatmapTileList.OffsetRange];
 
     public RectTransform RectTransform => rectTransform;
 
+    public string MusicPath => beatmapTileData.MusicPath;
 
     // Update is called once per frame
     private void Update()
@@ -63,6 +72,7 @@ public class BeatmapTile : MonoBehaviour
     public void SetInfo(int offset, BeatmapTileData beatmap)
     {
         Offset = offset;
+        beatmapTileData = beatmap;
         Random.InitState(beatmap.BeatmapSetID);
         selfImage.color = new Color(Random.Range(0.5F, 1), Random.Range(0.5F, 1), Random.Range(0.5F, 1), alpha);
         RectTransform.anchoredPosition = TargetPosition;
