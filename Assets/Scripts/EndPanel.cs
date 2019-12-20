@@ -24,6 +24,9 @@ public class EndPanel : MonoBehaviour
     private Text miss;
 
     [SerializeField]
+    private Text maxCombo;
+
+    [SerializeField]
     private Text rank;
 
     private int prevSelection = 0;
@@ -55,7 +58,7 @@ public class EndPanel : MonoBehaviour
         }
     }
 
-    public void Settle(int score, float completion, int perfect, int great, int good, int bad, int miss)
+    public void Settle(int score, float completion, int perfect, int great, int good, int bad, int miss, int maxCombo)
     {
         this.score.text = $"{score.ToString("00000000")} ({completion.ToString("00.00")})";
         this.perfect.text = $"prefect : {perfect}x";
@@ -63,6 +66,7 @@ public class EndPanel : MonoBehaviour
         this.good.text = $"good : {good}x";
         this.bad.text = $"bad : {bad}x";
         this.miss.text = $"miss : {miss}x";
+        this.maxCombo.text = $"max combo : {maxCombo}x";
         if (completion >= 99.99999F)
         {
             SS();

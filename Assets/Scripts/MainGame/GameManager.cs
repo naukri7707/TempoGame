@@ -394,6 +394,10 @@ public class GameManager : Singleton<GameManager>
     {
         // 設為非0值避免多次載入
         HitObject.Count = -1;
+        if (playerMaxCombo < combo)
+        {
+            playerMaxCombo = combo;
+        }
         music.Stop();
         var gameCG = game.GetComponent<CanvasGroup>();
         var endCG = end.GetComponent<CanvasGroup>();
@@ -408,7 +412,8 @@ public class GameManager : Singleton<GameManager>
                 (int)Mathf.Lerp(0, greatCount, endCG.alpha),
                 (int)Mathf.Lerp(0, goodCount, endCG.alpha),
                 (int)Mathf.Lerp(0, badCount, endCG.alpha),
-                (int)Mathf.Lerp(0, missCount, endCG.alpha)
+                (int)Mathf.Lerp(0, missCount, endCG.alpha),
+                (int)Mathf.Lerp(0, playerMaxCombo, endCG.alpha)
                 );
         }
         end.SetActive(true);
