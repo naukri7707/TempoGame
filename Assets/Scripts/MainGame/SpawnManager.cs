@@ -50,6 +50,7 @@ public class SpawnManager : MonoBehaviour
         int leadIn = GameManager.Beatmap.General.AudioLeadIn + MusicDelay;
         InstantisteSeparate(Mathf.Max(trueLeadIn, MusicDelay));
         HitObject.Count = 0;
+        GameManager.Instance.TotalNote = 0;
         foreach (var t in GameManager.Tracks)
         {
             t.Clear();
@@ -74,6 +75,7 @@ public class SpawnManager : MonoBehaviour
             newHit.StartTime = (float)(leadIn + hit.Time) / 1000;
             newHit.EndTime = (float)(leadIn + hit.EndTime) / 1000;
             GameManager.Tracks[newHit.Track].Enqueue(newHit);
+            GameManager.Instance.TotalNote++;
         }
         IsReady = true;
     }

@@ -141,12 +141,6 @@ public class GameManager : Singleton<GameManager>
         _ = WaitUntilReadyAndLeadIn();
     }
 
-    void Start()
-    {
-        TotalNote = HitObject.Count;
-    }
-
-
     private void LateUpdate()
     {
         switch (gameScene)
