@@ -41,9 +41,10 @@ namespace Naukri.Beatmap
                 {
                     break;
                 }
+                int.TryParse(data[0], out int time);
                 pts.Add(new TimingPoint
                 {
-                    Time = int.Parse(data[0]),
+                    Time = time,
                     BeatLength = decimal.Parse(data[1]),
                     Meter = int.Parse(data[2]),
                     SampleSet = int.Parse(data[3]),

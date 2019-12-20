@@ -394,6 +394,7 @@ public class GameManager : Singleton<GameManager>
     {
         // 設為非0值避免多次載入
         HitObject.Count = -1;
+        music.Stop();
         var gameCG = game.GetComponent<CanvasGroup>();
         var endCG = end.GetComponent<CanvasGroup>();
         var endPanel = end.GetComponent<EndPanel>();

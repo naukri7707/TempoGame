@@ -21,7 +21,7 @@ public class BeatmapTileList : MonoBehaviour
     [SerializeField]
     private GameObject beatmapTilePrefab;
 
-    private int currentBeatmapIndex;
+    private static int currentBeatmapIndex = -1;
 
     private bool ShiftDowning = false;
 
@@ -52,7 +52,7 @@ public class BeatmapTileList : MonoBehaviour
     /// <summary>
     /// 當前歌曲包 (中間)
     /// </summary>
-    public int CurrentBeatmapIndex
+    public static int CurrentBeatmapIndex
     {
         get => currentBeatmapIndex;
         set
@@ -200,7 +200,10 @@ public class BeatmapTileList : MonoBehaviour
         {
             return;
         }
-        CurrentBeatmapIndex = Random.Range(0, BeatmapTileDatas.Count);
+        if (CurrentBeatmapIndex == -1)
+        {
+            CurrentBeatmapIndex = Random.Range(0, BeatmapTileDatas.Count);
+        }
         PlayMusic(BeatmapTileDatas[CurrentBeatmapIndex].MusicPath);
         for (int i = -OffsetRange; i <= OffsetRange; i++)
         {
