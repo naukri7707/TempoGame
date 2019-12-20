@@ -6,13 +6,19 @@ using System.Threading.Tasks;
 
 public struct Evaluation
 {
-    public Evaluation(int score, float tolerance)
+    public Evaluation(int hitValue, int hitBonusValue, int hitBonus, float tolerance)
     {
-        Score = score;
+        HitValue = hitValue;
+        HitBonusValue = hitBonusValue;
+        HitBonus = hitBonus;
         Tolerance = tolerance;
     }
 
-    public int Score { get; }
+    public int HitValue { get; }
+
+    public int HitBonusValue { get; }
+
+    public int HitBonus { get; }
 
     public float Tolerance { get; }
 
@@ -20,38 +26,38 @@ public struct Evaluation
 
     public bool IsInTolerance(float bottom, float top) => 0F.InRange(bottom - Tolerance, top + Tolerance);
 
-    public static Evaluation Perfect { get; } = new Evaluation(3000, 30);
+    public static Evaluation Perfect { get; } = new Evaluation(3000, 32, 2, 50);
 
-    public static Evaluation Great { get; } = new Evaluation(2000, 50);
+    public static Evaluation Great { get; } = new Evaluation(2000, 16, 1, 90);
 
-    public static Evaluation Good { get; } = new Evaluation(1000, 70);
+    public static Evaluation Good { get; } = new Evaluation(1000, 8, -1, 120);
 
-    public static Evaluation Bad { get; } = new Evaluation(500, 80);
+    public static Evaluation Bad { get; } = new Evaluation(500, 4, -2, 150);
 
-    public static Evaluation Miss { get; } = new Evaluation(0, -1);
+    public static Evaluation Miss { get; } = new Evaluation(0, 0, -4, -1);
 
     /// <summary>
     /// 取得得分
     /// </summary>
     /// <param name="hit">目標物件</param>
     /// <returns></returns>
-    public static int GetScore(float positton)
+    public static Evaluation GetScore(float positton)
     {
         if (Perfect.IsInTolerance(positton))
         {
-            return Perfect.Score;
+            return Perfect;
         }
         else if (Great.IsInTolerance(positton))
         {
-            return Great.Score;
+            return Great;
         }
         else if (Good.IsInTolerance(positton))
         {
-            return Good.Score;
+            return Good;
         }
         else
         {
-            return Bad.Score;
+            return Bad;
         }
     }
 

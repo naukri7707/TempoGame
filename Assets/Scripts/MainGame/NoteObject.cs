@@ -13,7 +13,7 @@ class NoteObject : HitObject
         {
             if (!IsSettle)
             {
-                Score = Evaluation.Miss.Score;
+                Evaluation = Evaluation.Miss;
                 Settle();
             }
             return true;
@@ -24,14 +24,14 @@ class NoteObject : HitObject
         }
     }
 
-    public override void OnFocus(ButtonState state)
+    public override void OnFocus(KeyState state)
     {
         // 如果按鈕按下且進入判定範圍
-        if (state == ButtonState.Down && Evaluation.Bad.IsInTolerance(Bottom))
+        if (state == KeyState.Down && Evaluation.Bad.IsInTolerance(Bottom))
         {
             GameArgs.HitEffect[Track].Enable = true;
             _ = disableEffect();
-            Score = Evaluation.GetScore(Top);
+            Evaluation = Evaluation.GetScore(Top);
             Settle();
             GameManager.Tracks[Track].Dequeue();
             Destroy(gameObject);

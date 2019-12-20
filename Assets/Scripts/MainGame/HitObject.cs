@@ -8,7 +8,7 @@ public abstract class HitObject : MonoBehaviour
     /// <summary>
     /// 預設速度
     /// </summary>
-    private const float speed = -700F;
+    private const float speed = -750F;
 
     /// <summary>
     /// 欄位 X 軸
@@ -49,9 +49,9 @@ public abstract class HitObject : MonoBehaviour
     public int Track { get; set; }
 
     /// <summary>
-    /// 得分
+    /// 評價
     /// </summary>
-    protected int Score { get; set; } = 0;
+    protected Evaluation Evaluation { get; set; } = Evaluation.Miss;
 
     /// <summary>
     /// 已經結算
@@ -88,13 +88,13 @@ public abstract class HitObject : MonoBehaviour
     public abstract bool IsOver();
 
     // 當這個按鈕處於當前Track可被按下的HitObject中最下面時且按鈕按下時
-    public abstract void OnFocus(ButtonState state);
+    public abstract void OnFocus(KeyState state);
 
     // 結算
     protected void Settle()
     {
         Count--;
-        GameManager.Instance.AddScore(Score);
+        GameManager.Instance.AddScore(Evaluation);
         IsSettle = true;
     }
 

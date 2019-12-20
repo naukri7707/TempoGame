@@ -24,13 +24,13 @@ class HoldObject : HitObject
 
     public override bool IsOver()
     {
-        if (Top < -Evaluation.Bad.Tolerance)
+        if (Top < -Evaluation.Good.Tolerance || HoldState == 2)
         {
-            //  如果沒有放開到離開Miss範圍，判定為Miss
+            //  如果沒有放開到離開Good範圍，判定為Miss
             if (HoldState != 2)
             {
                 GameArgs.HitEffect[Track].Enable = false;
-                Score = Evaluation.Miss.Score;
+                Evaluation = Evaluation.Miss;
             }
             Settle();
             return true;
@@ -41,21 +41,21 @@ class HoldObject : HitObject
         }
     }
 
-    public override void OnFocus(ButtonState state)
+    public override void OnFocus(KeyState state)
     {
         // 如果在判定範圍且尚未被放開過
-        if (Evaluation.Great.IsInTolerance(Bottom, Top) && HoldState != 2)
+        if (Evaluation.Good.IsInTolerance(Bottom, Top) && HoldState != 2)
         {
             switch (state)
             {
-                case ButtonState.Down:
+                case KeyState.Down:
                     HoldState = 1;
                     GameArgs.HitEffect[Track].Enable = true;
                     HoldTime = Time.time;
                     break;
-                case ButtonState.Hold:
+                case KeyState.Hold:
                     break;
-                case ButtonState.Up:
+                case KeyState.Up:
                     if (HoldState == 1)
                     {
                         HoldState = 2;
@@ -67,19 +67,19 @@ class HoldObject : HitObject
                         float percent = CurrentPercent;
                         if (percent >= 0.9)
                         {
-                            Score = Evaluation.Perfect.Score;
+                            Evaluation = Evaluation.Perfect;
                         }
                         else if (percent >= 0.8)
                         {
-                            Score = Evaluation.Great.Score;
+                            Evaluation = Evaluation.Great;
                         }
                         else if (percent >= 0.6)
                         {
-                            Score = Evaluation.Good.Score;
+                            Evaluation = Evaluation.Good;
                         }
                         else
                         {
-                            Score = Evaluation.Bad.Score;
+                            Evaluation = Evaluation.Bad;
                         }
                     }
                     break;

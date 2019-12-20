@@ -10,7 +10,7 @@
         return Top < -Evaluation.Bad.Tolerance;
     }
 
-    public override void OnFocus(ButtonState state)
+    public override void OnFocus(KeyState state)
     {
     }
 }

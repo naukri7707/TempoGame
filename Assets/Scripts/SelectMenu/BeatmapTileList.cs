@@ -3,6 +3,7 @@ using Naukri.ExtensionMethods;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -21,6 +22,18 @@ public class BeatmapTileList : MonoBehaviour
     private GameObject beatmapTilePrefab;
 
     private int currentBeatmapIndex;
+
+    private bool ShiftDowning = false;
+
+    private bool ShiftDownEnd = true;
+
+    private bool ShiftUping = false;
+
+    private bool ShiftUpEnd = true;
+
+    private int fisrtShiftTime = 400;
+
+    private int loopShiftTime = 150;
 
     /// <summary>
     /// 音樂磚串列
@@ -125,23 +138,58 @@ public class BeatmapTileList : MonoBehaviour
         CreateBeatmapTileList();
     }
 
-    // Update is called once per frame
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (GameArgs.OperatingMode == OperatingMode.Arduino)
         {
-            ShiftUp();
+            KeyInfo.UpdateStates();
+            if (KeyInfo.Buttons[0] == KeyState.Down || KeyInfo.Buttons[1] == KeyState.Down)
+            {
+                SelectSong();
+            }
+            if (KeyInfo.Buttons[2] == KeyState.Down)
+            {
+                ShiftDowning = true;
+                AutoShiftDown();
+            }
+            else if (KeyInfo.Buttons[2] == KeyState.Up)
+            {
+                ShiftDowning = false;
+            }
+            else if (KeyInfo.Buttons[3] == KeyState.Down)
+            {
+                ShiftUping = true;
+                AutoShiftUp();
+            }
+            else if (KeyInfo.Buttons[3] == KeyState.Up)
+            {
+                ShiftUping = false;
+            }
         }
-        if (Input.GetKeyDown(KeyCode.DownArrow))
+        else
         {
-            ShiftDown();
-        }
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            SelectSong();
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
+            if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.F))
+            {
+                SelectSong();
+            }
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                ShiftDowning = true;
+                AutoShiftDown();
+            }
+            else if (Input.GetKeyUp(KeyCode.DownArrow))
+            {
+                ShiftDowning = false;
+            }
+            else if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                ShiftUping = true;
+                AutoShiftUp();
+            }
+            else if (Input.GetKeyUp(KeyCode.UpArrow))
+            {
+                ShiftUping = false;
+            }
         }
     }
 
@@ -206,6 +254,42 @@ public class BeatmapTileList : MonoBehaviour
             }
         }
         BeatmapTiles.AddLast(InstantiateBeatmapTile(OffsetRange));
+    }
+
+    /// <summary>
+    /// 自動向下
+    /// </summary>
+    private async void AutoShiftDown()
+    {
+        ShiftDown();
+        // 避免同時載入多個
+        if (!ShiftDownEnd) return;
+        ShiftDownEnd = false;
+        await Task.Delay(fisrtShiftTime);
+        while (ShiftDowning)
+        {
+            ShiftDown();
+            await Task.Delay(loopShiftTime);
+        }
+        ShiftDownEnd = true;
+    }
+
+    /// <summary>
+    /// 自動向上
+    /// </summary>
+    private async void AutoShiftUp()
+    {
+        ShiftUp();
+        // 避免同時載入多個
+        if (!ShiftUpEnd) return;
+        ShiftUpEnd = false;
+        await Task.Delay(fisrtShiftTime);
+        while (ShiftUping)
+        {
+            ShiftUp();
+            await Task.Delay(loopShiftTime);
+        }
+        ShiftUpEnd = true;
     }
 
     private void SelectSong()

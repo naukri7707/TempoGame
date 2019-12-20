@@ -1,8 +1,9 @@
 ﻿using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-static class GameArgs
+class GameArgs : Singleton<GameArgs>
 {
     public static BeatmapTileData SelectedBeatmap { get; set; }
 
@@ -36,4 +37,29 @@ static class GameArgs
 
     public static HitEffectBehaviour[] HitEffect { get; set; } = new HitEffectBehaviour[4];
 
+    internal static OperatingMode OperatingMode { get; set; } = OperatingMode.KeyBoard;
+
+    private void Awake()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F1) && OperatingMode != OperatingMode.KeyBoard)
+        {
+            OperatingMode = OperatingMode.KeyBoard;
+            MessageBox.Show("OP Mode = KeyBoard");
+        }
+        else if (Input.GetKeyDown(KeyCode.F2) && OperatingMode != OperatingMode.Arduino)
+        {
+            OperatingMode = OperatingMode.Arduino;
+            MessageBox.Show("OP Mode = Arduino");
+        }
+        else if (Input.GetKeyDown(KeyCode.F3) && OperatingMode != OperatingMode.AI)
+        {
+            OperatingMode = OperatingMode.AI;
+            MessageBox.Show("OP Mode = AI");
+        }
+    }
 }

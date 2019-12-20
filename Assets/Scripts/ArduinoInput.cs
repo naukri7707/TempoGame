@@ -1,98 +1,36 @@
-﻿// for unity c# scripts
-using UnityEngine;
+﻿using UnityEngine;
 using System.IO.Ports;
 using System;
+using System.Threading.Tasks;
+using System.Threading;
 
-public class ArduinoInput :MonoBehaviour
+public class ArduinoInput : Singleton<ArduinoInput>
 {
-    public static string COMPort = "COM4";
-    public bool portOpen = false;
-    public SerialPort serialPort = new SerialPort(COMPort, 9600);
-    public bool errorHandling = false;
+    private const string COMPort = "COM4";
 
-    public string incomingData = "";
+    private readonly SerialPort serialPort = new SerialPort(COMPort, 9600);
 
-    public int updateInterval = 4;
-    public int updateSlower = 0;
+    [SerializeField]
+    private string incomingData = "";
 
-    public bool useData = false;
+    public static string Data => Instance.incomingData;
 
-
-    // Use this for initialization
-    void Start()
+    private void Start()
     {
-        OpenConnection();
+        var theard = new Thread(new ThreadStart(GetValue))
+        {
+            IsBackground = true
+        };
+        theard.Start();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void GetValue()
     {
-
-        updateSlower++;
-        if (portOpen && serialPort.IsOpen && updateSlower >= updateInterval)
-        {
-            RecieveInput();
-            updateSlower = 0;
-        }
-    }
-
-    public void OpenConnection()
-    {
-        if (serialPort != null)
-        {
-            if (serialPort.IsOpen)
-            {
-                serialPort.Close();
-
-                Debug.Log("Closing port as it was already open");
-            }
-            else
-            {
-                serialPort.Open();
-                serialPort.ReadTimeout = 500;
-                portOpen = true;
-
-                if (errorHandling)
-                {
-                    Debug.Log("Port open = " + serialPort.IsOpen);
-                }
-            }
-        }
-        else
-        {
-            if (serialPort.IsOpen)
-            {
-                Debug.Log("Port is already open");
-            }
-            else
-            {
-                Debug.Log("Port == Null");
-            }
-        }
-    }
-
-    void RecieveInput()
-    {
-        try
+        serialPort.Open();
+        while (true)
         {
             incomingData = serialPort.ReadLine();
-
-            //Debug.Log(serialPort.ReadLine());
-            if (errorHandling)
-            {
-                Debug.Log("data = " + incomingData);
-            }
-            useData = true;
-        }
-        catch (Exception errorpiece)
-        {
-            if (useData)
-            {
-                Debug.Log("Error 1: " + errorpiece);
-                useData = false;
-            }
+            Debug.Log(incomingData);
         }
     }
-
 }
-

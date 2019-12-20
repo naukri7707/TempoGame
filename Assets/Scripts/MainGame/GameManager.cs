@@ -1,39 +1,21 @@
 ﻿using Naukri.Beatmap;
 using Naukri.ExtensionMethods;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
-// TODO 預設 delay 時間 (某些歌直接開始)
-// TODO Hold Object
-// TODO Score & Combo
-// TODO 沒有HitObject 後漸按結算
-// TODO UI
-// TODO 校準介面
 
 public class GameManager : Singleton<GameManager>
 {
-    private static readonly BeatmapTileData ThisGame = new BeatmapTileData(
-            1604005,
-            749557,
-            "This game",
-            "This game",
-            "Roselia",
-            "Roselia",
-            "-Aqua",
-            "Rave's Normal",
-            "749557 Roselia - This game",
-            "Sayo best girl fight me.jpg",
-            "This game.wav",
-            "Roselia - This game (-Aqua) [Rave's Normal].osu"
-            );
-
-    [SerializeField]
-    private Arduino arduino;
+    private enum GameScene
+    {
+        Gaming,
+        Pause,
+        End
+    }
 
     [SerializeField]
     private GameObject game;
@@ -54,13 +36,21 @@ public class GameManager : Singleton<GameManager>
     private SpawnManager spawnManager;
 
     [SerializeField]
-    private Text textAddScore;
+    private Text textEvluation;
 
     [SerializeField]
     private Text textScore;
 
     [SerializeField]
     private Text textPercent;
+
+    [SerializeField]
+    private Text Combo;
+
+    [SerializeField]
+    private Text ComboEffect;
+
+    private GameScene gameScene;
 
     /// <summary>
     /// beatmap 最少等待時間 (毫秒)
@@ -70,14 +60,22 @@ public class GameManager : Singleton<GameManager>
     /// <summary>
     /// 顯示分數
     /// </summary>
-    private int showScore = 0;
+    private long showScore = 0;
+
+    private int comboTarget = 25;
+
+    const long MAXSCORE = 100000000;
+
+    int bonus = 0;
+
+    int maxBonus = 0;
 
     /// <summary>
     /// 實際分數
     /// </summary>
-    private int score = 0;
+    private long score = 0;
 
-    private int maxScore = 0;
+    private long maxScore = 0;
 
     private int perfectCount = 0;
 
@@ -89,6 +87,19 @@ public class GameManager : Singleton<GameManager>
 
     private int missCount = 0;
 
+    /// <summary>
+    /// 玩家最大 Combo
+    /// </summary>
+    public int playerMaxCombo { get; set; } = 0;
+
+    /// <summary>
+    /// 玩家當前 Combo
+    /// </summary>
+    public int combo { get; set; } = 0;
+
+    public int hitCount { get; set; } = 0;
+
+    public int TotalNote { get; set; } = 0;
 
     static GameManager()
     {
@@ -98,9 +109,11 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    private static Color textEvaluationSourceColor = new Color();
+
     public static bool AIPlay { get; set; } = false;
 
-    public static int Score => Instance.score;
+    public static long Score => Instance.score;
 
     private float showScorePercent = 0;
 
@@ -114,8 +127,13 @@ public class GameManager : Singleton<GameManager>
 
     private void Awake()
     {
+        if (GameArgs.SelectedBeatmap.OsuFile == null)
+        {
+            SceneManager.LoadScene(0);
+            return;
+        }
         Application.targetFrameRate = -1;
-        // GameArgs.SelectedBeatmap = ThisGame;
+        textEvaluationSourceColor = textEvluation.color;
         HitObject.SetActive(false);
         StartCoroutine(music.SetAudioExternalAsync(GameArgs.SelectedBeatmap.MusicPath));
         Beatmap = new Beatmap(GameArgs.SelectedBeatmap.OsuPath);
@@ -123,103 +141,249 @@ public class GameManager : Singleton<GameManager>
         _ = WaitUntilReadyAndLeadIn();
     }
 
-    void Update()
+    void Start()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            if (HitObject.IsActive)
-            {
-                music.Pause();
-                HitObject.SetActive(false);
-                pause.SetActive(true);
-            }
-            else
-            {
-                music.UnPause();
-                HitObject.SetActive(true);
-                pause.SetActive(false);
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.F12))
-        {
-            AIPlay = !AIPlay;
-        }
+        TotalNote = HitObject.Count;
     }
 
 
     private void LateUpdate()
     {
-        // 將過期(絕對為miss)的hitObject 轉移至 removeable 等待超出畫面時移除
-        foreach (var t in Tracks)
+        switch (gameScene)
         {
-            while (t.Any() && t.Peek().IsOver())
-            {
-                Removeable.Enqueue(t.Dequeue());
-            }
-        }
-        if (AIPlay)
-        { 
-            arduino.SetStates(StatesInfoFromAI());
-        }
-        // 判斷
-        for (int i = 0; i < 4; i++)
-        {
-            if (Tracks[i].Any())
-            {
-                Tracks[i].Peek().OnFocus(Arduino.Buttons[i]);
-            }
-        }
-        while (Removeable.Any() && Removeable.Peek().Top < -500) // TODO throw magic number
-        {
-            Destroy(Removeable.Dequeue().gameObject);
-        }
+            case GameScene.Gaming:
+                // 將過期(絕對為miss)的hitObject 轉移至 removeable 等待超出畫面時移除
+                foreach (var t in Tracks)
+                {
+                    while (t.Any() && t.Peek().IsOver())
+                    {
+                        Removeable.Enqueue(t.Dequeue());
+                    }
+                }
+                //按鍵事件
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    music.Pause();
+                    HitObject.SetActive(false);
+                    pause.SetActive(true);
+                    gameScene = GameScene.Pause;
+                }
+                KeyInfo.UpdateStates();
+                // 判斷
+                for (int i = 0; i < 4; i++)
+                {
+                    // 設定特效
+                    GameArgs.PressEffect[i].enabled = KeyInfo.Buttons[i].State == KeyState.Down || KeyInfo.Buttons[i].State == KeyState.Hold;
+                    // 判斷 HitObject
+                    if (Tracks[i].Any())
+                    {
+                        Tracks[i].Peek().OnFocus(KeyInfo.Buttons[i]);
+                    }
+                }
+                while (Removeable.Any() && Removeable.Peek().Top < -10) // 當Top在比畫面在下面一點時刪除以保證完全脫離畫面
+                {
+                    Destroy(Removeable.Dequeue().gameObject);
+                }
 
-        if (HitObject.Count == 0)
-        {
-            _ = EndGame();
+                if (HitObject.Count == 0 && !Removeable.Any())
+                {
+                    _ = EndGame();
+                }
+
+                showScore = (int)Mathf.Lerp(showScore, score, 20 * Time.deltaTime);
+                if (score - showScore < 100)
+                    showScore = score;
+                textScore.text = showScore.ToString("00000000");
+
+                showScorePercent = maxScore == 0 ? 100 : Mathf.Lerp(showScorePercent, (float)(score * 100) / maxScore, 20 * Time.deltaTime);
+                textPercent.text = showScorePercent.ToString("00.00") + "%";
+                Combo.text = combo.ToString();
+                if (combo >= comboTarget)
+                {
+                    ShowComboEffect();
+                }
+                if (textEvluation.transform.localScale.x > 0.9)
+                {
+                    textEvluation.transform.localScale -= new Vector3(0.5F, 0.5F, 0) * Time.deltaTime;
+                }
+                else
+                {
+                    textEvluation.color -= new Color(0, 0, 0, 0.5F * Time.deltaTime);
+                }
+                break;
+            case GameScene.Pause:
+                void SelectPause()
+                {
+                    switch (PausePanel.CurrentSelection)
+                    {
+                        case 0:
+                            music.UnPause();
+                            HitObject.SetActive(true);
+                            pause.SetActive(false);
+                            gameScene = GameScene.Gaming;
+                            break;
+                        case 1:
+                            SceneManager.LoadScene(1);
+                            break;
+                        case 2:
+                            SceneManager.LoadScene(0);
+                            break;
+                    }
+                }
+                if (GameArgs.OperatingMode == OperatingMode.Arduino)
+                {
+                    KeyInfo.UpdateStates();
+                    if (KeyInfo.Buttons[0] == KeyState.Down || KeyInfo.Buttons[1] == KeyState.Down)
+                    {
+                        SelectPause();
+                    }
+                    if (KeyInfo.Buttons[2] == KeyState.Down)
+                    {
+                        PausePanel.CurrentSelection++;
+                    }
+                    else if (KeyInfo.Buttons[3] == KeyState.Down)
+                    {
+                        PausePanel.CurrentSelection--;
+                    }
+                }
+                else
+                {
+                    if (Input.GetKeyDown(KeyCode.Escape))
+                    {
+                        music.UnPause();
+                        HitObject.SetActive(true);
+                        pause.SetActive(false);
+                        gameScene = GameScene.Gaming;
+                    }
+                    else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Return))
+                    {
+                        SelectPause();
+                    }
+                    if (Input.GetKeyDown(KeyCode.DownArrow))
+                    {
+                        PausePanel.CurrentSelection++;
+                    }
+                    else if (Input.GetKeyDown(KeyCode.UpArrow))
+                    {
+                        PausePanel.CurrentSelection--;
+                    }
+                }
+                break;
+            case GameScene.End:
+                void SelectEnd()
+                {
+                    switch (EndPanel.CurrentSelection)
+                    {
+                        case 0:
+                            SceneManager.LoadScene(1);
+                            break;
+                        case 1:
+                            SceneManager.LoadScene(0);
+                            break;
+                    }
+                }
+                if (GameArgs.OperatingMode == OperatingMode.Arduino)
+                {
+                    KeyInfo.UpdateStates();
+                    if (KeyInfo.Buttons[0] == KeyState.Down || KeyInfo.Buttons[1] == KeyState.Down)
+                    {
+                        SelectEnd();
+                    }
+                    if (KeyInfo.Buttons[2] == KeyState.Down)
+                    {
+                        EndPanel.CurrentSelection++;
+                    }
+                    else if (KeyInfo.Buttons[3] == KeyState.Down)
+                    {
+                        EndPanel.CurrentSelection--;
+                    }
+                }
+                else
+                {
+                    if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Return))
+                    {
+                        SelectEnd();
+                    }
+                    if (Input.GetKeyDown(KeyCode.DownArrow))
+                    {
+                        EndPanel.CurrentSelection++;
+                    }
+                    else if (Input.GetKeyDown(KeyCode.UpArrow))
+                    {
+                        EndPanel.CurrentSelection--;
+                    }
+                }
+                break;
         }
-
-        showScore = Convert.ToInt32(Mathf.Lerp(showScore, score, 2 * Time.deltaTime));
-        if (score - showScore < 100)
-            showScore = score;
-        textScore.text = showScore.ToString("00000000");
-
-        showScorePercent = maxScore == 0 ? 100 : Mathf.Lerp(showScorePercent, (float)(score * 100) / maxScore, 2 * Time.deltaTime);
-        textPercent.text = showScorePercent.ToString("00.00") + "%";
     }
 
-    public void AddScore(int score)
+    private async void ShowComboEffect()
     {
-        this.score += score;
-        maxScore += Evaluation.Perfect.Score;
-        if (score == Evaluation.Perfect.Score)
+        ComboEffect.gameObject.SetActive(true);
+        ComboEffect.text = comboTarget.ToString();
+        comboTarget += 25;
+        ComboEffect.color = Combo.color + new Color(0, 0, 0, Combo.color.a);
+        ComboEffect.fontSize = (int)(Combo.fontSize * 0.9);
+        while (ComboEffect.color.a > 0)
+        {
+            ComboEffect.fontSize += 6;
+            ComboEffect.color -= new Color(0, 0, 0, 0.5F * Time.deltaTime);
+            await new WaitForUpdate();
+        }
+        ComboEffect.gameObject.SetActive(false);
+    }
+
+    public void AddScore(Evaluation evl)
+    {
+        // int baseScore = (MAXSCORE / 2) / TotalNote * (evl.HitValue / Evaluation.Perfect.HitValue);
+        // int bonusScore = (MAXSCORE / 2) / TotalNote * (evl.HitBonusValue * (int)Mathf.Sqrt(bonus) / Evaluation.Perfect.HitValue);
+        // bonus = Mathf.Clamp(bonus + evl.HitBonus, 0, 100);
+        score += MAXSCORE * (long)(evl.HitValue + evl.HitBonusValue * Mathf.Sqrt(bonus)) / (Evaluation.Perfect.HitValue * TotalNote * 2);
+        maxScore += MAXSCORE * (long)(Evaluation.Perfect.HitValue + Evaluation.Perfect.HitBonusValue * Mathf.Sqrt(maxBonus)) / (Evaluation.Perfect.HitValue * TotalNote * 2);
+        bonus = Mathf.Clamp(bonus + evl.HitBonus, 0, 100);
+        maxBonus = Mathf.Clamp(maxBonus + Evaluation.Perfect.HitBonus, 0, 100);
+        if (evl.HitValue < Evaluation.Good.HitValue)
+        {
+            if (playerMaxCombo < combo)
+            {
+                playerMaxCombo = combo;
+            }
+            combo = 0;
+            comboTarget = 25;
+        }
+        else
+        {
+            combo++;
+        }
+        if (evl.HitValue == Evaluation.Perfect.HitValue)
         {
             perfectCount++;
-            textAddScore.text = "Perfect!!";
+            textEvluation.text = "Perfect!!";
         }
-        else if (score == Evaluation.Great.Score)
+        else if (evl.HitValue == Evaluation.Great.HitValue)
         {
             greatCount++;
-            textAddScore.text = "Great!";
+            textEvluation.text = "Great!";
         }
-        else if (score == Evaluation.Good.Score)
+        else if (evl.HitValue == Evaluation.Good.HitValue)
         {
             goodCount++;
-            textAddScore.text = "Good";
+            textEvluation.text = "Good";
         }
-        else if (score == Evaluation.Bad.Score)
+        else if (evl.HitValue == Evaluation.Bad.HitValue)
         {
             badCount++;
-            textAddScore.text = "Bad";
+            textEvluation.text = "Bad";
         }
         else
         {
             missCount++;
-            textAddScore.text = "Miss";
+            textEvluation.text = "Miss";
         }
+        textEvluation.transform.localScale = new Vector3(1, 1, 1);
+        textEvluation.color = textEvaluationSourceColor;
     }
 
-    // TODO LeadIn 上移作時間補正，載入畫面
     private async Task WaitUntilReadyAndLeadIn()
     {
         // 載入資源
@@ -261,39 +425,12 @@ public class GameManager : Singleton<GameManager>
             setPanel();
             await new WaitForUpdate();
         }
+        gameScene = GameScene.End;
         while (endCG.alpha < 1)
         {
             endCG.alpha += Time.deltaTime * 0.5F;
             setPanel();
             await new WaitForUpdate();
         }
-    }
-
-    public int StatesInfoFromAI()
-    {
-        int res = 0;
-        for (int i = 0; i < 4; i++)
-        {
-            if (!Tracks[i].Any()) continue;
-            var h = Tracks[i].Peek();
-            if (h.Top >= -Evaluation.Bad.Tolerance)
-            {
-                if (h is NoteObject)
-                {
-                    if (Evaluation.Perfect.IsInTolerance(h.Bottom))
-                    {
-                        res += 1 << i;
-                    }
-                }
-                else if (h is HoldObject)
-                {
-                    if (Evaluation.Perfect.IsInTolerance(h.Bottom, h.Top))
-                    {
-                        res += 1 << i;
-                    }
-                }
-            }
-        }
-        return res;
     }
 }
