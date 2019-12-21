@@ -13,6 +13,9 @@ public class BeatmapTileList : MonoBehaviour
     public const int OffsetRange = 8;
 
     [SerializeField]
+    private GameObject exitPanel;
+
+    [SerializeField]
     private AudioSource musicPreview;
 
     [SerializeField]
@@ -141,55 +144,114 @@ public class BeatmapTileList : MonoBehaviour
 
     private void Update()
     {
-        if (GameArgs.OperatingMode == OperatingMode.Arduino)
+        if (exitPanel.activeSelf == false)
         {
-            KeyInfo.UpdateStates();
-            if (KeyInfo.Buttons[0] == KeyState.Down || KeyInfo.Buttons[1] == KeyState.Down)
+            if (GameArgs.OperatingMode == OperatingMode.Arduino)
             {
-                SelectSong();
+                KeyInfo.UpdateStates();
+                if (KeyInfo.Buttons[0] == KeyState.Down || KeyInfo.Buttons[1] == KeyState.Down)
+                {
+                    SelectSong();
+                }
+                if (KeyInfo.Buttons[2] == KeyState.Down)
+                {
+                    ShiftDowning = true;
+                    AutoShiftDown();
+                }
+                else if (KeyInfo.Buttons[2] == KeyState.Up)
+                {
+                    ShiftDowning = false;
+                }
+                else if (KeyInfo.Buttons[3] == KeyState.Down)
+                {
+                    ShiftUping = true;
+                    AutoShiftUp();
+                }
+                else if (KeyInfo.Buttons[3] == KeyState.Up)
+                {
+                    ShiftUping = false;
+                }
             }
-            if (KeyInfo.Buttons[2] == KeyState.Down)
+            else
             {
-                ShiftDowning = true;
-                AutoShiftDown();
-            }
-            else if (KeyInfo.Buttons[2] == KeyState.Up)
-            {
-                ShiftDowning = false;
-            }
-            else if (KeyInfo.Buttons[3] == KeyState.Down)
-            {
-                ShiftUping = true;
-                AutoShiftUp();
-            }
-            else if (KeyInfo.Buttons[3] == KeyState.Up)
-            {
-                ShiftUping = false;
+                if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Return))
+                {
+                    SelectSong();
+                }
+                if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    ShiftDowning = true;
+                    AutoShiftDown();
+                }
+                else if (Input.GetKeyUp(KeyCode.DownArrow))
+                {
+                    ShiftDowning = false;
+                }
+                else if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    ShiftUping = true;
+                    AutoShiftUp();
+                }
+                else if (Input.GetKeyUp(KeyCode.UpArrow))
+                {
+                    ShiftUping = false;
+                }
+                else if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    exitPanel.SetActive(true);
+                }
             }
         }
         else
         {
-            if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.F))
+            if (GameArgs.OperatingMode == OperatingMode.Arduino)
             {
-                SelectSong();
+                KeyInfo.UpdateStates();
+                if (KeyInfo.Buttons[0] == KeyState.Down || KeyInfo.Buttons[1] == KeyState.Down)
+                {
+                    if (ExitPanel.CurrentSelection == 0)
+                    {
+                        Application.Quit();
+                    }
+                    else
+                    {
+                        exitPanel.SetActive(false);
+                    }
+                }
+                if (KeyInfo.Buttons[2] == KeyState.Down)
+                {
+                    ExitPanel.CurrentSelection++;
+                }
+                else if (KeyInfo.Buttons[3] == KeyState.Down)
+                {
+                    ExitPanel.CurrentSelection--;
+                }
             }
-            if (Input.GetKeyDown(KeyCode.DownArrow))
+            else
             {
-                ShiftDowning = true;
-                AutoShiftDown();
-            }
-            else if (Input.GetKeyUp(KeyCode.DownArrow))
-            {
-                ShiftDowning = false;
-            }
-            else if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                ShiftUping = true;
-                AutoShiftUp();
-            }
-            else if (Input.GetKeyUp(KeyCode.UpArrow))
-            {
-                ShiftUping = false;
+                if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Return))
+                {
+                    if (ExitPanel.CurrentSelection == 0)
+                    {
+                        Application.Quit(); 
+                    }
+                    else
+                    {
+                        exitPanel.SetActive(false);
+                    }
+                }
+                if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    ExitPanel.CurrentSelection++;
+                }
+                else if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    ExitPanel.CurrentSelection--;
+                }
+                else if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    exitPanel.SetActive(false);
+                }
             }
         }
     }
