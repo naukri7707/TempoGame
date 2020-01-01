@@ -398,7 +398,6 @@ public class GameManager : Singleton<GameManager>
         {
             playerMaxCombo = combo;
         }
-        music.Stop();
         var gameCG = game.GetComponent<CanvasGroup>();
         var endCG = end.GetComponent<CanvasGroup>();
         var endPanel = end.GetComponent<EndPanel>();
