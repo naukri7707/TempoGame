@@ -29,7 +29,7 @@ public static class KeyInfo
     // 將輸入資訊轉譯成按鈕資訊
     private static void SetStates(int stateInfo)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
             Buttons[i].SetState((stateInfo & (1 << i)) != 0);
         }

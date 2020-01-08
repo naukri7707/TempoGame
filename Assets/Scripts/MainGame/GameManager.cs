@@ -125,6 +125,11 @@ public class GameManager : Singleton<GameManager>
 
     public static Queue<HitObject> Removeable { get; } = new Queue<HitObject>();
 
+    [SerializeField]
+    private float disToOutOfScene = 0F;
+
+    public static float DistanceToBottom { get => Instance.disToOutOfScene; set => Instance.disToOutOfScene = value; }
+
     private void Awake()
     {
         if (GameArgs.SelectedBeatmap.OsuFile == null)
@@ -154,15 +159,15 @@ public class GameManager : Singleton<GameManager>
                         Removeable.Enqueue(t.Dequeue());
                     }
                 }
+                KeyInfo.UpdateStates();
                 //按鍵事件
-                if (Input.GetKeyDown(KeyCode.Escape))
+                if (Input.GetKeyDown(KeyCode.Escape) || KeyInfo.Buttons[4] == KeyState.Down)
                 {
                     music.Pause();
                     HitObject.SetActive(false);
                     pause.SetActive(true);
                     gameScene = GameScene.Pause;
                 }
-                KeyInfo.UpdateStates();
                 // 判斷
                 for (int i = 0; i < 4; i++)
                 {
@@ -174,7 +179,7 @@ public class GameManager : Singleton<GameManager>
                         Tracks[i].Peek().OnFocus(KeyInfo.Buttons[i]);
                     }
                 }
-                while (Removeable.Any() && Removeable.Peek().Top < -10) // 當Top在比畫面在下面一點時刪除以保證完全脫離畫面
+                while (Removeable.Any() && Removeable.Peek().Top < -DistanceToBottom) // 當Top在比畫面在下面一點時刪除以保證完全脫離畫面
                 {
                     Destroy(Removeable.Dequeue().gameObject);
                 }
@@ -238,6 +243,13 @@ public class GameManager : Singleton<GameManager>
                     else if (KeyInfo.Buttons[3] == KeyState.Down)
                     {
                         PausePanel.CurrentSelection--;
+                    }
+                    else if (KeyInfo.Buttons[4] == KeyState.Down)
+                    {
+                        music.UnPause();
+                        HitObject.SetActive(true);
+                        pause.SetActive(false);
+                        gameScene = GameScene.Gaming;
                     }
                 }
                 else

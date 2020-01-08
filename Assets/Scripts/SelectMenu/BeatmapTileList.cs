@@ -171,6 +171,10 @@ public class BeatmapTileList : MonoBehaviour
                 {
                     ShiftUping = false;
                 }
+                else if (KeyInfo.Buttons[4] == KeyState.Down)
+                {
+                    exitPanel.SetActive(true);
+                }
             }
             else
             {
@@ -225,6 +229,10 @@ public class BeatmapTileList : MonoBehaviour
                 else if (KeyInfo.Buttons[3] == KeyState.Down)
                 {
                     ExitPanel.CurrentSelection--;
+                }
+                else if (KeyInfo.Buttons[4] == KeyState.Down)
+                {
+                    exitPanel.SetActive(false);
                 }
             }
             else

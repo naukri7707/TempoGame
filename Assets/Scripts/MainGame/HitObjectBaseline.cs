@@ -17,7 +17,8 @@ public class HitObjectBaseline : MonoBehaviour
 
     private void Awake()
     {
-        var pos = new Vector2(0, (CanvasRect.offsetMax.y - CanvasRect.offsetMin.y) * Offset);
+        GameManager.DistanceToBottom = (CanvasRect.offsetMax.y - CanvasRect.offsetMin.y) * Offset;
+        var pos = new Vector2(0, GameManager.DistanceToBottom);
         GetComponent<RectTransform>().anchoredPosition = pos;
     }
 }
